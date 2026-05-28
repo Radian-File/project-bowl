@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -9,6 +10,8 @@ import { ActivityLogsService } from "./activity-logs.service";
 import { ActivityLogQueryDto } from "./dto/activity-log-query.dto";
 import { CreateActivityLogDto } from "./dto/create-activity-log.dto";
 
+@ApiTags("Activity Logs")
+@ApiBearerAuth()
 @Controller("activity-logs")
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN, UserRole.EDITOR)

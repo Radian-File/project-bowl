@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -9,6 +10,7 @@ import { CreateTechStackDto } from "./dto/create-tech-stack.dto";
 import { UpdateTechStackDto } from "./dto/update-tech-stack.dto";
 import { TechStacksService } from "./tech-stacks.service";
 
+@ApiTags("Tech Stacks")
 @Controller("tech-stacks")
 export class TechStacksController {
   constructor(private readonly techStacksService: TechStacksService) {}
@@ -24,6 +26,7 @@ export class TechStacksController {
   }
 
   @Post()
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.EDITOR)
   create(@Body() dto: CreateTechStackDto, @CurrentUser() user: AuthenticatedUser) {
@@ -31,6 +34,7 @@ export class TechStacksController {
   }
 
   @Patch(":id")
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.EDITOR)
   update(@Param("id") id: string, @Body() dto: UpdateTechStackDto, @CurrentUser() user: AuthenticatedUser) {
@@ -38,6 +42,7 @@ export class TechStacksController {
   }
 
   @Delete(":id")
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.EDITOR)
   remove(@Param("id") id: string, @CurrentUser() user: AuthenticatedUser) {

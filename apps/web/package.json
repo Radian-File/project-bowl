@@ -8,7 +8,8 @@
     "build": "node scripts/next-build.cjs",
     "start": "next start --port 3000",
     "lint": "echo 'web lint not configured yet'",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "@projectbowl/ui": "workspace:*",

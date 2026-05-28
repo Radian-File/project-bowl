@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -10,6 +11,7 @@ import { ProjectQueryDto } from "./dto/project-query.dto";
 import { UpdateProjectDto } from "./dto/update-project.dto";
 import { ProjectsService } from "./projects.service";
 
+@ApiTags("Projects")
 @Controller("projects")
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
@@ -20,6 +22,7 @@ export class ProjectsController {
   }
 
   @Get(":id/progress")
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.EDITOR)
   getProgress(@Param("id") id: string) {
@@ -32,6 +35,7 @@ export class ProjectsController {
   }
 
   @Post()
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.EDITOR)
   create(@Body() dto: CreateProjectDto, @CurrentUser() user: AuthenticatedUser) {
@@ -39,6 +43,7 @@ export class ProjectsController {
   }
 
   @Patch(":id")
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.EDITOR)
   update(@Param("id") id: string, @Body() dto: UpdateProjectDto, @CurrentUser() user: AuthenticatedUser) {
@@ -46,6 +51,7 @@ export class ProjectsController {
   }
 
   @Delete(":id")
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.EDITOR)
   remove(@Param("id") id: string, @CurrentUser() user: AuthenticatedUser) {

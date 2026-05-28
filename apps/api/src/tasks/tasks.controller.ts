@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -10,6 +11,8 @@ import { TaskQueryDto } from "./dto/task-query.dto";
 import { UpdateTaskDto } from "./dto/update-task.dto";
 import { TasksService } from "./tasks.service";
 
+@ApiTags("Tasks")
+@ApiBearerAuth()
 @Controller("tasks")
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN, UserRole.EDITOR)

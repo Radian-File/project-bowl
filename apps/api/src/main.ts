@@ -4,6 +4,7 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import type { AppEnvironment } from "./common/config/env.validation";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
+import { setupSwagger } from "./swagger";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -25,6 +26,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new HttpExceptionFilter());
+  setupSwagger(app);
 
   await app.listen(configService.get("API_PORT", { infer: true }));
 }

@@ -1,4 +1,5 @@
 import { Body, Controller, Post, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -12,6 +13,8 @@ import { GenerateReadmeDto } from "./dto/generate-readme.dto";
 import { RewriteDto } from "./dto/rewrite.dto";
 import { TranslateDto } from "./dto/translate.dto";
 
+@ApiTags("AI")
+@ApiBearerAuth()
 @Controller("ai")
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN, UserRole.EDITOR)
