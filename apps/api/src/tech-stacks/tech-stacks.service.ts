@@ -33,14 +33,23 @@ export class TechStacksService {
     return techStack;
   }
 
-  async create(dto: CreateTechStackDto) {
+  async create(dto: CreateTechStackDto, userId?: string) {
     try {
-      return await this.prisma.techStack.create({
+      const techStack = await this.prisma.techStack.create({
         data: {
           ...dto,
           slug: dto.slug ?? slugify(dto.name),
         },
       });
+
+      await this.logActivity({
+        userId,
+        action: "tech-stack.created",
+        entityId: techStack.id,
+        message: `Created tech stack \"${techStack.name}\"`,
+      });
+
+      return techStack;
     } catch (error) {
       if (isKnownPrismaError(error, "P2002")) {
         throw new ConflictException("A tech stack with this name or slug already exists");
@@ -50,12 +59,21 @@ export class TechStacksService {
     }
   }
 
-  async update(id: string, dto: UpdateTechStackDto) {
+  async update(id: string, dto: UpdateTechStackDto, userId?: string) {
     try {
-      return await this.prisma.techStack.update({
+      const techStack = await this.prisma.techStack.update({
         where: { id },
         data: dto,
       });
+
+      await this.logActivity({
+        userId,
+        action: "tech-stack.updated",
+        entityId: techStack.id,
+        message: `Updated tech stack \"${techStack.name}\"`,
+      });
+
+      return techStack;
     } catch (error) {
       if (isKnownPrismaError(error, "P2025")) {
         throw new NotFoundException(`Tech stack ${id} was not found`);
@@ -69,9 +87,15 @@ export class TechStacksService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string, userId?: string) {
     try {
-      await this.prisma.techStack.delete({ where: { id } });
+      const techStack = await this.prisma.techStack.delete({ where: { id } });
+      await this.logActivity({
+        userId,
+        action: "tech-stack.deleted",
+        entityId: techStack.id,
+        message: `Deleted tech stack \"${techStack.name}\"`,
+      });
       return { id, deleted: true };
     } catch (error) {
       if (isKnownPrismaError(error, "P2025")) {
@@ -80,5 +104,17 @@ export class TechStacksService {
 
       throw error;
     }
+  }
+
+  private logActivity(input: { userId?: string; action: string; entityId: string; message: string }) {
+    return this.prisma.activityLog.create({
+      data: {
+        userId: input.userId,
+        action: input.action,
+        entityType: "tech_stack",
+        entityId: input.entityId,
+        message: input.message,
+      },
+    });
   }
 }

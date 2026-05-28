@@ -1,15 +1,28 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ArrowUpRight, CheckCircle2 } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { Badge, Card, SectionLabel, buttonClasses } from "@projectbowl/ui";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
+import { getPublicProject } from "@/lib/api";
 import { getProject, projects } from "@/lib/portfolio-data";
+import { normalizeApiProject } from "@/lib/project-view";
 
 type ProjectPageProps = {
   params: Promise<{ slug: string }>;
 };
+
+async function getProjectForPage(slug: string) {
+  try {
+    const apiProject = await getPublicProject(slug);
+    return { project: normalizeApiProject(apiProject), source: "api" as const, error: null };
+  } catch (error) {
+    const fallback = getProject(slug);
+    const message = error instanceof Error ? error.message : "Project API unavailable.";
+    return fallback ? { project: fallback, source: "fallback" as const, error: message } : { project: null, source: "missing" as const, error: message };
+  }
+}
 
 export function generateStaticParams() {
   return projects.map((project) => ({ slug: project.slug }));
@@ -17,7 +30,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const project = getProject(slug);
+  const { project } = await getProjectForPage(slug);
 
   if (!project) {
     return { title: "Project not found · ricky.dev" };
@@ -26,16 +39,23 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   return {
     title: `${project.title} · ricky.dev`,
     description: project.summary,
+    openGraph: {
+      title: `${project.title} · ricky.dev`,
+      description: project.summary,
+      type: "article",
+    },
   };
 }
 
 export default async function ProjectDetailPage({ params }: ProjectPageProps) {
   const { slug } = await params;
-  const project = getProject(slug);
+  const result = await getProjectForPage(slug);
 
-  if (!project) {
+  if (!result.project) {
     notFound();
   }
+
+  const project = result.project;
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-bowl-background text-bowl-text">
@@ -49,6 +69,12 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
           <Link href="/#projects" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white">
             <ArrowLeft className="h-4 w-4" /> Back to projects
           </Link>
+
+          {result.source === "fallback" ? (
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-xs text-amber-100">
+              <AlertCircle className="h-3.5 w-3.5" /> Showing static fallback: {result.error}
+            </div>
+          ) : null}
 
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
             <div>
@@ -66,12 +92,15 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
             </div>
 
             <Card className="overflow-hidden p-0" hover>
-              <div className="h-72 border-b border-white/10 bg-[#0D111B] p-5">
-                <div className="relative h-full overflow-hidden rounded-[1.5rem] border border-white/10 bg-black/25 p-5">
+              <div className="relative h-72 border-b border-white/10 bg-[#0D111B] p-5">
+                {project.coverImage?.url ? (
+                  <div className="absolute inset-0 bg-cover bg-center opacity-50" style={{ backgroundImage: `url(${project.coverImage.url})` }} />
+                ) : null}
+                <div className="relative h-full overflow-hidden rounded-[1.5rem] border border-white/10 bg-black/35 p-5 backdrop-blur-sm">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.34),transparent_34%),radial-gradient(circle_at_80%_20%,rgba(6,182,212,0.24),transparent_35%)]" />
                   <div className="relative flex h-full flex-col justify-between">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-slate-400">{project.url}</span>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="truncate text-sm text-slate-300">{project.url}</span>
                       <Badge tone="lime">{project.status}</Badge>
                     </div>
                     <div className="grid grid-cols-3 gap-3">

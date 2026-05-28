@@ -59,17 +59,35 @@ enum AiGenerationStatus {
   FAILED
 }
 
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  DONE
+  CANCELED
+}
+
+enum MilestoneStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+}
+
 model User {
   id           String            @id @default(cuid())
   email        String            @unique
   name         String?
   avatarUrl    String?
-  role         UserRole          @default(EDITOR)
-  passwordHash String?
-  projects     Project[]
-  aiLogs       AiGenerationLog[]
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  role             UserRole          @default(EDITOR)
+  passwordHash     String?
+  refreshTokenHash String?
+  projects         Project[]
+  aiLogs           AiGenerationLog[]
+  createdTasks     Task[]            @relation("TaskCreatedBy")
+  activityLogs     ActivityLog[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
   @@index([role])
 }
@@ -95,6 +113,9 @@ model Project {
   owner           User?              @relation(fields: [ownerId], references: [id], onDelete: SetNull)
   techStacks      ProjectTechStack[]
   images          ProjectImage[]
+  tasks           Task[]
+  milestones      ProjectMilestone[]
+  activityLogs    ActivityLog[]
   aiGenerationLog AiGenerationLog[]
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
@@ -146,6 +167,61 @@ model ProjectImage {
   updatedAt DateTime         @updatedAt
 
   @@index([projectId, type])
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  projectId   String
+  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  priority    Int        @default(0)
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdById String?
+  createdBy   User?      @relation("TaskCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([projectId, status])
+  @@index([createdById])
+  @@index([dueDate])
+}
+
+model ProjectMilestone {
+  id          String          @id @default(cuid())
+  projectId   String
+  project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  status      MilestoneStatus @default(PLANNED)
+  targetDate  DateTime?
+  completedAt DateTime?
+  sortOrder   Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([projectId, status])
+  @@index([targetDate])
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  projectId  String?
+  project    Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String
+  entityType String
+  entityId   String?
+  message    String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([projectId, createdAt])
+  @@index([userId])
+  @@index([entityType, entityId])
 }
 
 model AiGenerationLog {

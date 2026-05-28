@@ -1,4 +1,5 @@
 export type Project = {
+  id?: string;
   slug: string;
   title: string;
   badge: string;
@@ -9,6 +10,9 @@ export type Project = {
   tech: string[];
   status: string;
   year: string;
+  visibility?: string;
+  isFeatured?: boolean;
+  coverImage?: { url: string; altText?: string | null };
 };
 
 export const profile = {

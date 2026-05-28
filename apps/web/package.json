@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --port 3000",
-    "build": "next build",
+    "build": "node scripts/next-build.cjs",
     "start": "next start --port 3000",
     "lint": "echo 'web lint not configured yet'",
     "typecheck": "tsc --noEmit"

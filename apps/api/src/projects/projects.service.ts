@@ -3,11 +3,12 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { Prisma, ProjectVisibility } from "@prisma/client";
+import { MilestoneStatus, Prisma, ProjectVisibility, TaskStatus } from "@prisma/client";
 import { slugify } from "../common/utils/slugify";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateProjectDto } from "./dto/create-project.dto";
 import { ProjectImageDto } from "./dto/project-image.dto";
+import { ProjectQueryDto } from "./dto/project-query.dto";
 import { UpdateProjectDto } from "./dto/update-project.dto";
 
 const projectInclude = {
@@ -57,8 +58,27 @@ function mapImages(images: ProjectImageDto[] | undefined): Prisma.ProjectImageCr
 export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(query: ProjectQueryDto = {}) {
     return this.prisma.project.findMany({
+      where: {
+        status: query.status,
+        visibility: query.visibility,
+        isFeatured: query.isFeatured,
+        techStacks: query.techStackId
+          ? {
+              some: {
+                techStackId: query.techStackId,
+              },
+            }
+          : undefined,
+        OR: query.search
+          ? [
+              { title: { contains: query.search, mode: "insensitive" } },
+              { summary: { contains: query.search, mode: "insensitive" } },
+              { description: { contains: query.search, mode: "insensitive" } },
+            ]
+          : undefined,
+      },
       include: projectInclude,
       orderBy: [{ isFeatured: "desc" }, { updatedAt: "desc" }],
     });
@@ -77,7 +97,7 @@ export class ProjectsService {
     return project;
   }
 
-  async create(dto: CreateProjectDto) {
+  async create(dto: CreateProjectDto, userId?: string) {
     const { images, ownerId, techStackIds, ...projectFields } = dto;
     const visibility = projectFields.visibility ?? ProjectVisibility.PRIVATE;
     const publishedAt =
@@ -88,7 +108,7 @@ export class ProjectsService {
           : undefined;
 
     try {
-      return await this.prisma.project.create({
+      const project = await this.prisma.project.create({
         data: {
           ...projectFields,
           slug: projectFields.slug ?? slugify(projectFields.title),
@@ -113,6 +133,16 @@ export class ProjectsService {
         },
         include: projectInclude,
       });
+
+      await this.logActivity({
+        projectId: project.id,
+        userId,
+        action: "project.created",
+        entityId: project.id,
+        message: `Created project \"${project.title}\"`,
+      });
+
+      return project;
     } catch (error) {
       if (isKnownPrismaError(error, "P2002")) {
         throw new ConflictException("A project with this slug already exists");
@@ -122,7 +152,7 @@ export class ProjectsService {
     }
   }
 
-  async update(id: string, dto: UpdateProjectDto) {
+  async update(id: string, dto: UpdateProjectDto, userId?: string) {
     const existing = await this.prisma.project.findUnique({ where: { id } });
 
     if (!existing) {
@@ -167,7 +197,7 @@ export class ProjectsService {
           }
         }
 
-        return tx.project.update({
+        const project = await tx.project.update({
           where: { id },
           data: {
             ...projectFields,
@@ -183,6 +213,19 @@ export class ProjectsService {
           },
           include: projectInclude,
         });
+
+        await tx.activityLog.create({
+          data: {
+            projectId: project.id,
+            userId,
+            action: "project.updated",
+            entityType: "project",
+            entityId: project.id,
+            message: `Updated project \"${project.title}\"`,
+          },
+        });
+
+        return project;
       });
     } catch (error) {
       if (isKnownPrismaError(error, "P2002")) {
@@ -193,9 +236,16 @@ export class ProjectsService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string, userId?: string) {
     try {
-      await this.prisma.project.delete({ where: { id } });
+      const project = await this.prisma.project.delete({ where: { id } });
+      await this.logActivity({
+        projectId: undefined,
+        userId,
+        action: "project.deleted",
+        entityId: project.id,
+        message: `Deleted project \"${project.title}\"`,
+      });
       return { id, deleted: true };
     } catch (error) {
       if (isKnownPrismaError(error, "P2025")) {
@@ -217,6 +267,40 @@ export class ProjectsService {
     });
   }
 
+  async getProgress(id: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { id },
+      select: { id: true, title: true, slug: true },
+    });
+
+    if (!project) {
+      throw new NotFoundException(`Project ${id} was not found`);
+    }
+
+    const [totalTasks, completedTasks, totalMilestones, completedMilestones] = await Promise.all([
+      this.prisma.task.count({ where: { projectId: id } }),
+      this.prisma.task.count({ where: { projectId: id, status: TaskStatus.DONE } }),
+      this.prisma.projectMilestone.count({ where: { projectId: id } }),
+      this.prisma.projectMilestone.count({ where: { projectId: id, status: MilestoneStatus.COMPLETED } }),
+    ]);
+
+    const totalItems = totalTasks + totalMilestones;
+    const completedItems = completedTasks + completedMilestones;
+
+    return {
+      project,
+      tasks: {
+        total: totalTasks,
+        completed: completedTasks,
+      },
+      milestones: {
+        total: totalMilestones,
+        completed: completedMilestones,
+      },
+      progressPercentage: totalItems === 0 ? 0 : Math.round((completedItems / totalItems) * 100),
+    };
+  }
+
   async findPublishedBySlug(slug: string) {
     const project = await this.prisma.project.findFirst({
       where: {
@@ -232,5 +316,24 @@ export class ProjectsService {
     }
 
     return project;
+  }
+
+  private logActivity(input: {
+    projectId?: string;
+    userId?: string;
+    action: string;
+    entityId: string;
+    message: string;
+  }) {
+    return this.prisma.activityLog.create({
+      data: {
+        projectId: input.projectId,
+        userId: input.userId,
+        action: input.action,
+        entityType: "project",
+        entityId: input.entityId,
+        message: input.message,
+      },
+    });
   }
 }
