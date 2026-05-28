@@ -1,0 +1,11 @@
+{
+  "name": "@projectbowl/config",
+  "version": "0.1.0",
+  "private": true,
+  "files": ["tsconfig"],
+  "scripts": {
+    "build": "echo 'config package: nothing to build'",
+    "lint": "echo 'config package: nothing to lint'",
+    "typecheck": "echo 'config package: nothing to typecheck'"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "projectbowl",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3",
+    "turbo": "^2.5.4",
+    "typescript": "^5.8.3"
+  }
+}
