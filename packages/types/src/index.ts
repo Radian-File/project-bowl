@@ -1,6 +1,6 @@
 export type ProjectStatus = "IDEA" | "PLANNING" | "IN_PROGRESS" | "SHIPPED" | "ARCHIVED";
 
-export type ProjectVisibility = "PRIVATE" | "PUBLIC";
+export type ProjectVisibility = "PRIVATE" | "PUBLIC" | "UNLISTED";
 
 export type TechStackCategory =
   | "FRONTEND"

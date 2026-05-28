@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum ProjectStatus {
+  IDEA
+  PLANNING
+  IN_PROGRESS
+  SHIPPED
+  ARCHIVED
+}
+
+enum ProjectVisibility {
+  PRIVATE
+  PUBLIC
+  UNLISTED
+}
+
+enum TechStackCategory {
+  FRONTEND
+  BACKEND
+  DATABASE
+  AI
+  DEVOPS
+  DESIGN
+  OTHER
+}
+
+enum ProjectImageType {
+  COVER
+  GALLERY
+  LOGO
+  SCREENSHOT
+}
+
+enum AiGenerationType {
+  PROJECT_BRIEF
+  CASE_STUDY
+  README
+  IMAGE_PROMPT
+  OTHER
+}
+
+enum AiGenerationStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
+model User {
+  id           String            @id @default(cuid())
+  email        String            @unique
+  name         String?
+  avatarUrl    String?
+  role         UserRole          @default(EDITOR)
+  passwordHash String?
+  projects     Project[]
+  aiLogs       AiGenerationLog[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([role])
+}
+
+model Project {
+  id              String             @id @default(cuid())
+  title           String
+  slug            String             @unique
+  summary         String
+  description     String?
+  problem         String?
+  solution        String?
+  status          ProjectStatus      @default(IDEA)
+  visibility      ProjectVisibility  @default(PRIVATE)
+  isFeatured      Boolean            @default(false)
+  repositoryUrl   String?
+  liveUrl         String?
+  caseStudyUrl    String?
+  publishedAt     DateTime?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  ownerId         String?
+  owner           User?              @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  techStacks      ProjectTechStack[]
+  images          ProjectImage[]
+  aiGenerationLog AiGenerationLog[]
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([visibility, publishedAt])
+  @@index([status])
+  @@index([isFeatured])
+  @@index([ownerId])
+}
+
+model TechStack {
+  id          String             @id @default(cuid())
+  name        String             @unique
+  slug        String             @unique
+  category    TechStackCategory  @default(OTHER)
+  iconUrl     String?
+  websiteUrl  String?
+  description String?
+  projects    ProjectTechStack[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([category])
+}
+
+model ProjectTechStack {
+  projectId   String
+  techStackId String
+  sortOrder   Int       @default(0)
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  techStack   TechStack @relation(fields: [techStackId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@id([projectId, techStackId])
+  @@index([techStackId])
+}
+
+model ProjectImage {
+  id        String           @id @default(cuid())
+  projectId String
+  project   Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  type      ProjectImageType @default(GALLERY)
+  url       String
+  altText   String?
+  width     Int?
+  height    Int?
+  sortOrder Int              @default(0)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([projectId, type])
+}
+
+model AiGenerationLog {
+  id           String             @id @default(cuid())
+  projectId    String?
+  project      Project?           @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  userId       String?
+  user         User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  type         AiGenerationType   @default(OTHER)
+  status       AiGenerationStatus @default(QUEUED)
+  provider     String?
+  model        String?
+  prompt       String
+  response     String?
+  inputTokens  Int?
+  outputTokens Int?
+  errorMessage String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([projectId])
+  @@index([userId])
+  @@index([status])
+  @@index([type])
+}

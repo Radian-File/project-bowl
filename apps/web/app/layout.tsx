@@ -6,8 +6,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk" });
 
 export const metadata: Metadata = {
-  title: "ProjectBowl",
-  description: "AI-powered project management and portfolio CMS."
+  title: "Achmad Ricky R.P. · Fullstack Developer",
+  description: "Dark, AI-native developer portfolio and ProjectBowl showcase."
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
