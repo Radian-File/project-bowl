@@ -194,7 +194,7 @@ export function ProjectForm({ mode, initialProject }: { mode: "create" | "edit";
             <ImagePlus className="h-5 w-5 text-cyan-200" />
             <div>
               <h2 className="font-display text-2xl font-semibold text-white">Thumbnail / upload</h2>
-              <p className="text-sm text-slate-500">Cloudinary credentials are not available yet, so uploads are disabled. Paste a hosted image URL for now.</p>
+              <p className="text-sm text-slate-500">Cloudinary env is prepared for future uploads. Paste a hosted image URL for now.</p>
             </div>
           </div>
           <div className="grid gap-4 md:grid-cols-[1fr_220px]">
@@ -204,7 +204,7 @@ export function ProjectForm({ mode, initialProject }: { mode: "create" | "edit";
             </label>
             <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.04] p-4 text-center text-sm text-slate-500">
               <ImagePlus className="mx-auto mb-2 h-8 w-8 text-slate-600" />
-              Upload disabled until Cloudinary env is configured.
+              Upload endpoint pending. Use a hosted Cloudinary image URL for now.
             </div>
           </div>
         </Card>

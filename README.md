@@ -16,8 +16,10 @@ Vercel
 
 Supabase
 ├─ Auth
-├─ Postgres
-└─ Storage optional later
+└─ Postgres
+
+Cloudinary
+└─ Project image uploads optional later
 ```
 
 The project no longer requires a separately deployed backend for production. `apps/api` is kept as a **legacy/reference NestJS implementation** and is excluded from the active pnpm workspace pipeline.
@@ -68,6 +70,17 @@ Optional AI:
 OPENROUTER_API_KEY=
 OPENROUTER_MODEL=openai/gpt-4o-mini
 ```
+
+Cloudinary image uploads are not implemented yet, but the env is prepared for future upload integration:
+
+```txt
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+CLOUDINARY_UPLOAD_FOLDER=projectbowl
+```
+
+For now, use a hosted Cloudinary image URL in the project form's Cover image URL field.
 
 Never commit `.env` or production secrets.
 
