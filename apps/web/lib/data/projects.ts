@@ -101,9 +101,15 @@ export async function updateProjectInSupabase(id: string, payload: Partial<Proje
 
 export async function deleteProjectInSupabase(id: string) {
   const supabase = await getServerClient();
-  const { error } = await supabase.from("projects").delete().eq("id", id);
+  const { data, error, count } = await supabase.from("projects").delete({ count: "exact" }).eq("id", id).select("id");
   if (error) throw new Error(error.message);
-  return { id, deleted: true };
+
+  const deletedCount = count ?? data?.length ?? 0;
+  if (deletedCount !== 1) {
+    throw new Error("Project was not deleted. It may not exist, or your account does not have permission to delete it.");
+  }
+
+  return { id: data?.[0]?.id ?? id, deleted: true };
 }
 
 export async function listTechStacksFromSupabase() {

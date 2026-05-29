@@ -2,19 +2,15 @@ import { Badge, Card, SectionLabel, buttonClasses } from "@projectbowl/ui";
 import { AlertCircle, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { listPublicProjectsFromSupabase } from "@/lib/data/projects";
-import { projects } from "@/lib/portfolio-data";
 import { normalizeApiProject } from "@/lib/project-view";
 
 async function getDisplayProjects() {
   try {
     const apiProjects = await listPublicProjectsFromSupabase();
-    if (apiProjects.length > 0) {
-      return { projects: apiProjects.map(normalizeApiProject), source: "api" as const, error: null };
-    }
-    return { projects, source: "fallback" as const, error: "No published projects yet." };
+    return { projects: apiProjects.map(normalizeApiProject), error: null };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Portfolio API unavailable.";
-    return { projects, source: "fallback" as const, error: message };
+    return { projects: [], error: message };
   }
 }
 
@@ -27,9 +23,9 @@ export async function FeaturedProjectsSection() {
         <div className="max-w-2xl">
           <SectionLabel>Work</SectionLabel>
           <h2 className="font-display text-4xl font-bold tracking-tight text-white md:text-6xl">Featured projects.</h2>
-          {result.source === "fallback" ? (
+          {result.error ? (
             <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-xs text-amber-100">
-              <AlertCircle className="h-3.5 w-3.5" /> API fallback: {result.error}
+              <AlertCircle className="h-3.5 w-3.5" /> Portfolio API: {result.error}
             </div>
           ) : null}
         </div>

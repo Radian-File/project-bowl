@@ -8,6 +8,8 @@ import { HeroSection } from "@/components/sections/hero-section";
 import { ProjectBowlSection } from "@/components/sections/projectbowl-section";
 import { TechStackSection } from "@/components/sections/tech-stack-section";
 
+export const dynamic = "force-dynamic";
+
 export default function HomePage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-bowl-background text-bowl-text">

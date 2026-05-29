@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { AlertCircle, ArrowLeft, ArrowUpRight, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { Badge, Card, SectionLabel, buttonClasses } from "@projectbowl/ui";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
 import { getPublicProjectFromSupabase } from "@/lib/data/projects";
-import { getProject, projects } from "@/lib/portfolio-data";
 import { normalizeApiProject } from "@/lib/project-view";
+
+export const dynamic = "force-dynamic";
 
 type ProjectPageProps = {
   params: Promise<{ slug: string }>;
@@ -16,21 +17,15 @@ type ProjectPageProps = {
 async function getProjectForPage(slug: string) {
   try {
     const apiProject = await getPublicProjectFromSupabase(slug);
-    return { project: normalizeApiProject(apiProject), source: "api" as const, error: null };
-  } catch (error) {
-    const fallback = getProject(slug);
-    const message = error instanceof Error ? error.message : "Project API unavailable.";
-    return fallback ? { project: fallback, source: "fallback" as const, error: message } : { project: null, source: "missing" as const, error: message };
+    return normalizeApiProject(apiProject);
+  } catch {
+    return null;
   }
-}
-
-export function generateStaticParams() {
-  return projects.map((project) => ({ slug: project.slug }));
 }
 
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const { project } = await getProjectForPage(slug);
+  const project = await getProjectForPage(slug);
 
   if (!project) {
     return { title: "Project not found · ricky.dev" };
@@ -49,13 +44,11 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
 
 export default async function ProjectDetailPage({ params }: ProjectPageProps) {
   const { slug } = await params;
-  const result = await getProjectForPage(slug);
+  const project = await getProjectForPage(slug);
 
-  if (!result.project) {
+  if (!project) {
     notFound();
   }
-
-  const project = result.project;
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-bowl-background text-bowl-text">
@@ -69,12 +62,6 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
           <Link href="/#projects" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white">
             <ArrowLeft className="h-4 w-4" /> Back to projects
           </Link>
-
-          {result.source === "fallback" ? (
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-xs text-amber-100">
-              <AlertCircle className="h-3.5 w-3.5" /> Showing static fallback: {result.error}
-            </div>
-          ) : null}
 
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
             <div>

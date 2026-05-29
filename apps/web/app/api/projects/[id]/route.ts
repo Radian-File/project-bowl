@@ -2,6 +2,8 @@ import type { ProjectPayload } from "@/lib/api";
 import { deleteProjectInSupabase, getProjectByIdFromSupabase, updateProjectInSupabase } from "@/lib/data/projects";
 import { jsonError, jsonOk, readJson } from "@/lib/server/route-response";
 
+export const dynamic = "force-dynamic";
+
 type Context = { params: Promise<{ id: string }> };
 
 export async function GET(_request: Request, { params }: Context) {

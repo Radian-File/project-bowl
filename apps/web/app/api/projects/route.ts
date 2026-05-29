@@ -2,6 +2,8 @@ import type { ProjectPayload } from "@/lib/api";
 import { createProjectInSupabase, listProjectsFromSupabase } from "@/lib/data/projects";
 import { jsonError, jsonOk, readJson } from "@/lib/server/route-response";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     return jsonOk(await listProjectsFromSupabase());
