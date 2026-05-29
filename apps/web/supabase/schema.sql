@@ -185,6 +185,21 @@ alter table public.project_milestones enable row level security;
 alter table public.activity_logs enable row level security;
 alter table public.ai_generation_logs enable row level security;
 
+drop policy if exists "profiles read own" on public.profiles;
+drop policy if exists "profiles update own" on public.profiles;
+drop policy if exists "public read published projects" on public.projects;
+drop policy if exists "public read published project images" on public.project_images;
+drop policy if exists "public read published project stacks" on public.project_tech_stacks;
+drop policy if exists "public read tech stacks" on public.tech_stacks;
+drop policy if exists "dashboard manage projects" on public.projects;
+drop policy if exists "dashboard manage project images" on public.project_images;
+drop policy if exists "dashboard manage project stacks" on public.project_tech_stacks;
+drop policy if exists "dashboard manage tech stacks" on public.tech_stacks;
+drop policy if exists "dashboard manage tasks" on public.tasks;
+drop policy if exists "dashboard manage milestones" on public.project_milestones;
+drop policy if exists "dashboard manage activity" on public.activity_logs;
+drop policy if exists "dashboard manage ai logs" on public.ai_generation_logs;
+
 -- Profiles
 create policy "profiles read own" on public.profiles for select using (id = auth.uid() or public.is_admin_or_editor());
 create policy "profiles update own" on public.profiles for update using (id = auth.uid()) with check (id = auth.uid());
