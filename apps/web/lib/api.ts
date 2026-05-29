@@ -109,6 +109,15 @@ export type ApiActivityLog = {
 
 export type AiGenerationKind = "description" | "readme" | "case-study" | "rewrite";
 
+export type ProjectAiFields = {
+  title: string;
+  slug: string;
+  summary: string;
+  description: string;
+  problem: string;
+  solution: string;
+};
+
 export class ApiError extends Error {
   status?: number;
   details?: unknown;
@@ -291,6 +300,21 @@ export async function generateAiContent(kind: AiGenerationKind, payload: Record<
   return {
     raw: response,
     text: extractGeneratedText(response),
+    fields: extractProjectFields(response),
+  };
+}
+
+export async function generateProjectFromGitHub(repoUrl: string, notes?: string, tone?: string) {
+  const response = await apiRequest<Record<string, unknown>>("/ai/generate/github", {
+    method: "POST",
+    body: JSON.stringify(compactPayload({ repoUrl, notes, tone })),
+  });
+
+  return {
+    raw: response,
+    text: extractGeneratedText(response),
+    fields: extractProjectFields(response),
+    github: response.github,
   };
 }
 
@@ -355,6 +379,21 @@ function toInternalApiPath(path: string) {
   if (/^https?:\/\//.test(path)) return path;
   if (path.startsWith("/api/")) return path;
   return `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+function extractProjectFields(response: Record<string, unknown>): ProjectAiFields | null {
+  const fields = response.fields;
+  if (!fields || typeof fields !== "object") return null;
+  const record = fields as Record<string, unknown>;
+  const result = {
+    title: typeof record.title === "string" ? record.title : "",
+    slug: typeof record.slug === "string" ? record.slug : "",
+    summary: typeof record.summary === "string" ? record.summary : "",
+    description: typeof record.description === "string" ? record.description : "",
+    problem: typeof record.problem === "string" ? record.problem : "",
+    solution: typeof record.solution === "string" ? record.solution : "",
+  };
+  return Object.values(result).some(Boolean) ? result : null;
 }
 
 function extractGeneratedText(response: Record<string, unknown>) {

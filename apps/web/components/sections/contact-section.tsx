@@ -10,22 +10,22 @@ export function ContactSection() {
         <Card className="p-6 md:p-8" hover>
           <SectionLabel>Open to opportunities</SectionLabel>
           <h2 className="font-display text-4xl font-bold tracking-tight text-white md:text-6xl">
-            Got an idea? Let&apos;s build it together.
+            Punya ide? Let&apos;s build something useful.
           </h2>
           <p className="mt-4 text-lg leading-8 text-slate-400">
-            Whether it&apos;s a SaaS, an AI tool, or a portfolio site, send the rough version. I read every message and reply within 24 hours.
+            Mau bikin SaaS, AI tool, dashboard, atau portfolio site? Kirim versi kasarnya dulu. Saya baca setiap message dan usahakan reply dalam 24 jam.
           </p>
 
           <form className="mt-8 grid gap-4" aria-label="Contact form placeholder">
             <div className="grid gap-4 sm:grid-cols-2">
-              <Input aria-label="Your name" placeholder="Jane Doe" />
+              <Input aria-label="Nama kamu" placeholder="Nama kamu" />
               <Input aria-label="Email" type="email" placeholder="jane@company.com" />
             </div>
-            <Input aria-label="Company or project" placeholder="Acme Inc. — optional" />
-            <Textarea aria-label="Message" placeholder="What are you building? What does success look like? Any links, mockups or rough ideas welcome…" />
+            <Input aria-label="Company atau project" placeholder="Nama project / company — optional" />
+            <Textarea aria-label="Pesan" placeholder="Lagi mau build apa? Success-nya kelihatan seperti apa? Link, mockup, atau ide kasar boleh banget…" />
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-slate-500">Replies within 24h · Mon–Fri</p>
-              <Button type="button">Send message</Button>
+              <p className="text-sm text-slate-500">Reply ±24 jam · Senin–Jumat</p>
+              <Button type="button">Kirim pesan</Button>
             </div>
           </form>
         </Card>
@@ -37,17 +37,17 @@ export function ContactSection() {
             <Link href={`mailto:${profile.email}`} className="mt-2 block text-cyan-100 hover:text-white">
               {profile.email}
             </Link>
-            <p className="mt-2 text-sm text-slate-500">Best for project briefs.</p>
+            <p className="mt-2 text-sm text-slate-500">Paling enak untuk project brief.</p>
           </Card>
           <Card className="p-6" hover>
             <Calendar className="h-5 w-5 text-violet-300" />
             <h3 className="mt-4 font-display text-2xl font-semibold text-white">Book a call</h3>
             <p className="mt-2 text-cyan-100">cal.com/rickyrp</p>
-            <p className="mt-2 text-sm text-slate-500">30 min · free intro chat.</p>
+            <p className="mt-2 text-sm text-slate-500">30 menit · ngobrol intro gratis.</p>
           </Card>
           <Card className="p-6" hover>
             <MapPin className="h-5 w-5 text-lime-300" />
-            <h3 className="mt-4 font-display text-2xl font-semibold text-white">Where I work</h3>
+            <h3 className="mt-4 font-display text-2xl font-semibold text-white">Lokasi kerja</h3>
             <p className="mt-2 text-slate-300">Bandung, Indonesia</p>
             <div className="mt-3 flex items-center gap-2">
               <Badge tone="lime">Online now</Badge>

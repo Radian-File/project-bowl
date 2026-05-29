@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, ImagePlus, Loader2, Plus, Save, ToggleLeft, WandSparkles } from "lucide-react";
+import { AlertCircle, Github, ImagePlus, Loader2, Plus, Save, ToggleLeft, WandSparkles } from "lucide-react";
 import { Badge, Button, Card, Input, Textarea, buttonClasses } from "@projectbowl/ui";
 import {
   ApiProject,
@@ -13,6 +13,7 @@ import {
   TechStackCategory,
   createProject,
   createTechStack,
+  generateProjectFromGitHub,
   listTechStacks,
   updateProject,
 } from "@/lib/api";
@@ -48,6 +49,10 @@ export function ProjectForm({ mode, initialProject }: { mode: "create" | "edit";
   const [techStacks, setTechStacks] = useState<ApiTechStack[]>([]);
   const [newTechName, setNewTechName] = useState("");
   const [newTechCategory, setNewTechCategory] = useState<TechStackCategory>("FRONTEND");
+  const [githubRepoUrl, setGithubRepoUrl] = useState(initialProject?.repositoryUrl?.includes("github.com") ? initialProject.repositoryUrl : "");
+  const [githubNotes, setGithubNotes] = useState("");
+  const [isGeneratingGithub, setIsGeneratingGithub] = useState(false);
+  const [githubMessage, setGithubMessage] = useState<string | null>(null);
   const [techError, setTechError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -86,6 +91,47 @@ export function ProjectForm({ mode, initialProject }: { mode: "create" | "edit";
       ...current,
       techStackIds: current.techStackIds.includes(id) ? current.techStackIds.filter((item) => item !== id) : [...current.techStackIds, id],
     }));
+  }
+
+  async function handleGenerateWithGithub() {
+    setError(null);
+    setGithubMessage(null);
+
+    if (!githubRepoUrl.trim()) {
+      setError("Masukkan GitHub repository URL dulu, contoh: https://github.com/username/repo.");
+      return;
+    }
+
+    setIsGeneratingGithub(true);
+    try {
+      const result = await generateProjectFromGitHub(githubRepoUrl.trim(), githubNotes.trim(), "Bahasa Indonesia yang fun, confident, dan profesional; boleh mix English untuk tech/product terms.");
+      if (!result.fields) {
+        throw new Error("AI belum mengembalikan structured fields. Coba tambahkan notes yang lebih jelas atau retry.");
+      }
+
+      const github = result.github as { htmlUrl?: string; languages?: string[]; topics?: string[] } | undefined;
+      const techHints = [...(github?.languages ?? []), ...(github?.topics ?? [])]
+        .filter(Boolean)
+        .slice(0, 10)
+        .join(", ");
+
+      setForm((current) => ({
+        ...current,
+        title: result.fields?.title || current.title,
+        slug: result.fields?.slug || current.slug,
+        summary: result.fields?.summary || current.summary,
+        description: result.fields?.description || current.description,
+        problem: result.fields?.problem || current.problem,
+        solution: result.fields?.solution || current.solution,
+        repositoryUrl: github?.htmlUrl ?? githubRepoUrl.trim(),
+        quickTech: techHints || current.quickTech,
+      }));
+      setGithubMessage("Draft dari GitHub berhasil dibuat. Review dulu field-nya sebelum save.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Generate with GitHub gagal.");
+    } finally {
+      setIsGeneratingGithub(false);
+    }
   }
 
   async function handleCreateTech() {
@@ -170,6 +216,24 @@ export function ProjectForm({ mode, initialProject }: { mode: "create" | "edit";
                 </button>
               </div>
             </label>
+            <div className="space-y-3 rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.04] p-4 md:col-span-2">
+              <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.22em] text-cyan-200">AI Assist</p>
+                  <h3 className="font-display text-xl font-semibold text-white">Generate with GitHub</h3>
+                  <p className="mt-1 text-sm leading-6 text-slate-400">Paste public GitHub repo URL, lalu AI akan isi title, slug, summary, description, problem, solution, repo URL, dan tech hints.</p>
+                </div>
+                <Github className="h-5 w-5 shrink-0 text-cyan-200" />
+              </div>
+              <div className="grid gap-3 lg:grid-cols-[1fr_auto]">
+                <Input value={githubRepoUrl} onChange={(event) => setGithubRepoUrl(event.target.value)} placeholder="https://github.com/username/repo" />
+                <button type="button" className={buttonClasses({ variant: "secondary", className: "shrink-0" })} onClick={handleGenerateWithGithub} disabled={isGeneratingGithub}>
+                  {isGeneratingGithub ? <Loader2 className="h-4 w-4 animate-spin" /> : <Github className="h-4 w-4" />} Generate with GitHub
+                </button>
+              </div>
+              <Input value={githubNotes} onChange={(event) => setGithubNotes(event.target.value)} placeholder="Optional notes: highlight AI workflow, dashboard, Supabase, clean UI..." />
+              {githubMessage ? <div className="rounded-2xl border border-lime-300/20 bg-lime-300/10 p-3 text-sm text-lime-100">{githubMessage}</div> : null}
+            </div>
             <label className="space-y-2 md:col-span-2">
               <span className="text-sm font-semibold text-slate-300">Summary</span>
               <Textarea className="min-h-28" value={form.summary} onChange={(event) => updateField("summary", event.target.value)} placeholder="Short portfolio card copy..." maxLength={500} />

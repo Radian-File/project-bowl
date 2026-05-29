@@ -7,9 +7,9 @@ export function AiFeaturesSection() {
     <section id="ai" className="mx-auto w-full max-w-6xl px-6 py-20">
       <div className="mb-10 max-w-3xl">
         <SectionLabel>AI Studio</SectionLabel>
-        <h2 className="font-display text-4xl font-bold tracking-tight text-white md:text-6xl">Four prompts. Endless portfolios.</h2>
+        <h2 className="font-display text-4xl font-bold tracking-tight text-white md:text-6xl">Satu prompt. Banyak copy siap pakai.</h2>
         <p className="mt-4 text-lg leading-8 text-slate-400">
-          ProjectBowl ships with production-grade AI flows that help transform rough project material into useful launch assets.
+          ProjectBowl punya AI flow yang bantu mengubah bahan mentah project jadi launch assets yang rapi, fun, dan profesional.
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-2">

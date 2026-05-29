@@ -21,10 +21,10 @@ export const profile = {
   role: "Fullstack developer",
   location: "Bandung, Indonesia · GMT+7",
   email: "hi@ricky.dev",
-  headline: "Building digital products from idea to deployment.",
+  headline: "Dari ide mentah jadi produk digital yang siap launch.",
   intro:
-    "Hi, I’m Achmad Ricky Radhiansyah Putra — a software engineering enthusiast focused on clean interfaces, pragmatic backends, and AI-native product workflows.",
-  availability: "Available for fullstack opportunities",
+    "Hi, saya Achmad Ricky Radhiansyah Putra — software engineering enthusiast yang suka bikin interface clean, backend yang pragmatic, dan workflow produk yang AI-ready.",
+  availability: "Available untuk fullstack opportunities",
   socials: [
     { label: "GitHub", href: "https://github.com/rickyrp", handle: "@rickyrp" },
     { label: "LinkedIn", href: "https://linkedin.com/in/rickyrp", handle: "/rickyrp" },
@@ -33,9 +33,9 @@ export const profile = {
 };
 
 export const stats = [
-  { value: "4+", label: "Years coding" },
-  { value: "20+", label: "Projects shipped" },
-  { value: "12+", label: "Stack tools" },
+  { value: "4+", label: "Tahun ngoding" },
+  { value: "20+", label: "Project shipped" },
+  { value: "12+", label: "Tools favorit" },
 ];
 
 export const projects: Project[] = [
@@ -44,11 +44,11 @@ export const projects: Project[] = [
     title: "ProjectBowl",
     badge: "Flagship",
     url: "projectbowl.app",
-    summary: "AI-powered project management and portfolio CMS for developers shipping in public.",
+    summary: "AI-powered portfolio CMS untuk developer yang mau ngatur project, bikin copy, dan publish karya dengan lebih smooth.",
     description:
-      "ProjectBowl centralizes project planning, AI-generated documentation, case studies, and one-click portfolio publishing in a single workspace.",
-    impact: ["Kanban and portfolio publishing in one hub", "AI-generated project descriptions, READMEs, and case studies", "Embeddable project API for personal sites"],
-    tech: ["Next.js", "Supabase", "Claude", "tRPC"],
+      "ProjectBowl bantu developer mengubah ide, repo, dan catatan project jadi portfolio story yang rapi, lengkap dengan dashboard, AI draft, dan workflow publish yang lebih sat-set.",
+    impact: ["Dashboard project + portfolio publishing dalam satu workspace", "AI generate slug, summary, description, problem, dan solution", "Data project siap dipakai untuk portfolio public"],
+    tech: ["Next.js", "Supabase", "OpenRouter", "Vercel"],
     status: "In progress",
     year: "2026",
   },
@@ -57,10 +57,10 @@ export const projects: Project[] = [
     title: "Lumen Analytics",
     badge: "SaaS",
     url: "lumen-analytics.app",
-    summary: "Privacy-first product analytics dashboard with realtime funnels and retention views.",
+    summary: "Dashboard analytics privacy-first untuk founder yang butuh insight cepat tanpa tracking yang ribet.",
     description:
-      "A lightweight analytics workspace for founders who want fast answers without invasive tracking scripts or bloated reporting.",
-    impact: ["Realtime event stream mockups", "Conversion and retention dashboard patterns", "Privacy-first data model exploration"],
+      "Lumen Analytics dirancang sebagai analytics workspace yang ringan, realtime, dan mudah dibaca — cocok untuk validasi produk tanpa tenggelam di reporting yang terlalu noisy.",
+    impact: ["Mockup realtime event stream", "Pattern funnel dan retention dashboard", "Eksplorasi data model yang privacy-first"],
     tech: ["Remix", "Postgres", "ClickHouse", "tRPC"],
     status: "Concept",
     year: "2025",
@@ -70,10 +70,10 @@ export const projects: Project[] = [
     title: "Drafty",
     badge: "AI",
     url: "drafty.app",
-    summary: "Long-form AI writing companion with versioned drafts, citations, and local model support.",
+    summary: "AI writing companion untuk draft panjang, versioning, dan rewrite yang lebih terarah.",
     description:
-      "Drafty helps writers iterate on articles, docs, and research notes with explainable AI suggestions and edit history.",
-    impact: ["Versioned draft timeline", "LLM rewrite and critique flows", "Local-first AI experimentation"],
+      "Drafty membantu writer dan builder mengolah artikel, docs, dan research notes dengan suggestion AI yang explainable, editable, dan tetap terasa human.",
+    impact: ["Versioned draft timeline", "Flow rewrite dan critique berbasis LLM", "Eksperimen local-first AI"],
     tech: ["React", "FastAPI", "pgvector", "Ollama"],
     status: "Prototype",
     year: "2025",
@@ -83,10 +83,10 @@ export const projects: Project[] = [
     title: "Pondok Stack",
     badge: "Open source",
     url: "pondok-stack.app",
-    summary: "Opinionated fullstack starter with auth, billing, dashboards, docs, and deployment defaults.",
+    summary: "Fullstack starter opinionated untuk validasi SaaS lebih cepat: auth, dashboard, docs, dan deploy-ready defaults.",
     description:
-      "A reusable starter kit for quickly validating SaaS ideas with production-minded conventions and a polished UI foundation.",
-    impact: ["Reusable auth and billing shell", "Dashboard bento components", "Documented deployment recipes"],
+      "Pondok Stack adalah starter kit yang fokus ke speed tanpa mengorbankan struktur — cocok untuk ngebangun MVP yang tetap kelihatan polished dari hari pertama.",
+    impact: ["Reusable auth dan billing shell", "Dashboard bento components", "Deployment recipes yang documented"],
     tech: ["Next.js", "Drizzle", "Stripe", "Tailwind"],
     status: "Maintained",
     year: "2024",
@@ -95,31 +95,31 @@ export const projects: Project[] = [
 
 export const aiFeatures = [
   {
-    title: "Generate Project Description",
-    endpoint: "POST /api/generate/description",
-    copy: "Turn rough notes, repo metadata, and goals into polished portfolio copy.",
+    title: "Generate Draft Project Lengkap",
+    endpoint: "POST /api/ai/generate/description",
+    copy: "Ubah catatan kasar jadi slug, summary, description, problem, dan solution yang siap masuk portfolio.",
   },
   {
     title: "Generate README",
-    endpoint: "POST /api/generate/readme",
-    copy: "Create structured READMEs with setup steps, architecture notes, and roadmap sections.",
+    endpoint: "POST /api/ai/generate/readme",
+    copy: "Bikin README yang rapi: setup steps, architecture notes, commands, dan roadmap.",
   },
   {
     title: "Generate Case Study",
-    endpoint: "POST /api/generate/case-study",
-    copy: "Shape a shipped project into a concise narrative with problem, process, and outcomes.",
+    endpoint: "POST /api/ai/generate/case-study",
+    copy: "Ubah project yang sudah shipped jadi cerita portfolio yang punya problem, process, dan impact.",
   },
   {
     title: "Improve Existing Text",
-    endpoint: "POST /api/rewrite",
-    copy: "Rewrite descriptions for clarity, tone, SEO, or recruiter-friendly summaries.",
+    endpoint: "POST /api/ai/rewrite",
+    copy: "Rewrite copy biar lebih clear, fun-professional, SEO-friendly, dan enak dibaca recruiter/client.",
   },
 ];
 
 export const stackGroups = [
   { title: "Frontend", items: ["React", "Next.js", "TypeScript", "Tailwind", "Motion", "Remix"] },
   { title: "Backend", items: ["Node.js", "tRPC", "FastAPI", "Go", "GraphQL", "Postgres"] },
-  { title: "Data & AI", items: ["Claude", "OpenAI", "pgvector", "Drizzle", "Prisma", "ClickHouse"] },
+  { title: "Data & AI", items: ["OpenRouter", "Claude", "pgvector", "Drizzle", "Prisma", "ClickHouse"] },
   { title: "Cloud & DevX", items: ["Vercel", "Supabase", "Docker", "GitHub Actions", "Cloudflare", "Sentry"] },
 ];
 

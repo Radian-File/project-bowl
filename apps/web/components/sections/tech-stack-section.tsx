@@ -6,7 +6,7 @@ export function TechStackSection() {
     <section id="stack" className="mx-auto w-full max-w-6xl px-6 py-20">
       <div className="mb-10 max-w-2xl">
         <SectionLabel>Tech Stack</SectionLabel>
-        <h2 className="font-display text-4xl font-bold tracking-tight text-white md:text-6xl">Tools I reach for daily.</h2>
+        <h2 className="font-display text-4xl font-bold tracking-tight text-white md:text-6xl">Tools yang sering saya pakai buat shipping.</h2>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

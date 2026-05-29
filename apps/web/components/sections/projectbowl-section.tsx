@@ -3,10 +3,10 @@ import { ArrowRight, Play, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 const benefits = [
-  "Centralized project hub — kanban + portfolio in one",
-  "AI writes descriptions, READMEs, case studies",
-  "One-click publish to portfolio site",
-  "Open API to embed projects anywhere",
+  "Project hub terpusat — dashboard + portfolio dalam satu flow",
+  "AI bantu generate slug, summary, description, problem, dan solution",
+  "Publish-ready content untuk portfolio site",
+  "Data project siap dipakai ulang di mana pun",
 ];
 
 export function ProjectBowlSection() {
@@ -18,10 +18,10 @@ export function ProjectBowlSection() {
           <div>
             <SectionLabel>Flagship product</SectionLabel>
             <h2 className="font-display text-4xl font-bold tracking-tight text-white md:text-6xl">
-              Meet ProjectBowl — your AI portfolio CMS.
+              Kenalan dengan ProjectBowl — AI portfolio CMS buat developer.
             </h2>
             <p className="mt-5 text-lg leading-8 text-slate-300">
-              ProjectBowl helps developers turn raw repos into beautiful portfolio stories, reusable project content, and publish-ready case studies.
+              ProjectBowl bantu developer mengubah repo, catatan, dan ide mentah jadi portfolio story yang rapi, reusable, dan siap dipublish.
             </p>
             <div className="mt-7 grid gap-3">
               {benefits.map((benefit) => (
@@ -33,10 +33,10 @@ export function ProjectBowlSection() {
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/projects/projectbowl" className={buttonClasses()}>
-                Open ProjectBowl <ArrowRight className="h-4 w-4" />
+                Buka ProjectBowl <ArrowRight className="h-4 w-4" />
               </Link>
               <Link href="#ai" className={buttonClasses({ variant: "secondary" })}>
-                <Play className="h-4 w-4" /> Watch demo
+                <Play className="h-4 w-4" /> Lihat demo
               </Link>
             </div>
           </div>
@@ -46,7 +46,7 @@ export function ProjectBowlSection() {
               <div className="mb-4 flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-500">projectbowl.app/dashboard</p>
-                  <h3 className="font-display text-xl font-semibold text-white">8 in progress · 2 ready to publish</h3>
+                  <h3 className="font-display text-xl font-semibold text-white">8 in progress · 2 siap publish</h3>
                 </div>
                 <Badge tone="purple">Generate</Badge>
               </div>
@@ -73,7 +73,7 @@ export function ProjectBowlSection() {
                 ))}
               </div>
               <div className="mt-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-4 text-sm text-cyan-100">
-                AI suggestion: Add a case study for Lumen Analytics and publish it with your next portfolio update.
+                AI suggestion: Tambahkan case study untuk Lumen Analytics, lalu publish bareng update portfolio berikutnya.
               </div>
             </div>
           </div>

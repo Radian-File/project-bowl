@@ -12,7 +12,7 @@ export function Footer() {
           </Link>
         ))}
         <span className="text-slate-600">•</span>
-        <span>Built with React, Tailwind &amp; a little bit of magic.</span>
+        <span>Dibangun dengan React, Tailwind &amp; sedikit magic.</span>
       </div>
     </footer>
   );

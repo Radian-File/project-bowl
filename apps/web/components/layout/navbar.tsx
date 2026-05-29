@@ -2,11 +2,11 @@ import { buttonClasses } from "@projectbowl/ui";
 import Link from "next/link";
 
 const navItems = [
-  { href: "/#about", label: "About" },
+  { href: "/#about", label: "Tentang" },
   { href: "/#projects", label: "Projects" },
   { href: "/#projectbowl", label: "ProjectBowl" },
   { href: "/#stack", label: "Stack" },
-  { href: "/#contact", label: "Contact" },
+  { href: "/#contact", label: "Kontak" },
 ];
 
 export function Navbar() {

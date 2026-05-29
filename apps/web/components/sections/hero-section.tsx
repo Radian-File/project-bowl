@@ -9,16 +9,16 @@ export function HeroSection() {
       <div>
         <SectionLabel>{profile.availability}</SectionLabel>
         <h1 className="font-display text-5xl font-bold leading-[0.98] tracking-tight text-white md:text-7xl lg:text-8xl">
-          Building digital products from idea to deployment.
+          Dari ide mentah jadi produk digital yang siap launch.
         </h1>
         <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300 md:text-xl">{profile.intro}</p>
 
         <div className="mt-9 flex flex-wrap gap-3">
           <Link href="#projects" className={buttonClasses({ size: "lg" })}>
-            View Projects <ArrowRight className="h-4 w-4" />
+            Lihat Projects <ArrowRight className="h-4 w-4" />
           </Link>
           <Link href="#projectbowl" className={buttonClasses({ variant: "secondary", size: "lg" })}>
-            Open ProjectBowl
+            Buka ProjectBowl
           </Link>
           <Button variant="ghost" size="lg" title="CV file will be connected later">
             Download CV <ArrowDownToLine className="h-4 w-4" />
@@ -41,7 +41,7 @@ export function HeroSection() {
           <div className="mb-6 flex items-center justify-between gap-4">
             <div>
               <p className="text-sm text-slate-500">projectbowl.app/dashboard</p>
-              <h2 className="font-display text-2xl font-semibold text-white">Portfolio workspace</h2>
+              <h2 className="font-display text-2xl font-semibold text-white">Workspace Portfolio</h2>
             </div>
             <Badge tone="lime">Online</Badge>
           </div>
@@ -63,7 +63,7 @@ export function HeroSection() {
               <div className="mb-4 flex items-center justify-between">
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-slate-500">AI suggestion</p>
-                  <h3 className="mt-1 font-display text-xl font-semibold text-white">Ship-ready cards</h3>
+                  <h3 className="mt-1 font-display text-xl font-semibold text-white">Card siap publish</h3>
                 </div>
                 <Sparkles className="h-5 w-5 text-cyan-300" />
               </div>
