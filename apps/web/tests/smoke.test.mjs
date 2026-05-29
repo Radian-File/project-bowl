@@ -15,10 +15,14 @@ describe("web app smoke", () => {
     assert.match(page, /export default function/);
   });
 
-  it("has API client configuration for runtime API URL", () => {
+  it("has Supabase fullstack configuration hooks", () => {
     const apiClientPath = join(appRoot, "lib", "api.ts");
+    const supabaseServerPath = join(appRoot, "lib", "supabase", "server.ts");
     const apiClient = readFileSync(apiClientPath, "utf8");
+    const supabaseServer = readFileSync(supabaseServerPath, "utf8");
 
-    assert.match(apiClient, /NEXT_PUBLIC_API_URL/);
+    assert.match(apiClient, /NEXT_PUBLIC_SUPABASE_URL/);
+    assert.match(apiClient, /\/api/);
+    assert.match(supabaseServer, /SUPABASE_SERVICE_ROLE_KEY/);
   });
 });

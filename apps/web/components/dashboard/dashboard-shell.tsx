@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Badge, buttonClasses } from "@projectbowl/ui";
 import { Bot, FolderKanban, Gauge, Home, LogOut, Menu, Plus, Sparkles, X } from "lucide-react";
-import { clearAuthToken, getAuthToken, getApiUrl, isApiConfigured, logout } from "@/lib/api";
+import { isApiConfigured, logout } from "@/lib/api";
 
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: Gauge },
@@ -18,11 +18,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [hasToken, setHasToken] = useState(false);
-
-  useEffect(() => {
-    setHasToken(Boolean(getAuthToken()));
-  }, []);
 
   const activeLabel = useMemo(() => navItems.find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))?.label ?? "Dashboard", [pathname]);
 
@@ -30,7 +25,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     try {
       await logout();
     } catch {
-      clearAuthToken();
+      // Ignore logout failures and return to login.
     }
     router.push("/login");
   }
@@ -51,12 +46,12 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </nav>
           <div className="absolute bottom-5 left-5 right-5 space-y-3 rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
             <div className="flex items-center justify-between gap-3">
-              <span className="text-xs text-slate-500">API</span>
+              <span className="text-xs text-slate-500">Supabase</span>
               <Badge tone={isApiConfigured() ? "lime" : "slate"}>{isApiConfigured() ? "Configured" : "Missing"}</Badge>
             </div>
-            <p className="truncate text-xs text-slate-400">{getApiUrl() || "Set NEXT_PUBLIC_API_URL"}</p>
+            <p className="truncate text-xs text-slate-400">Vercel + Supabase fullstack</p>
             <button onClick={handleLogout} className={buttonClasses({ variant: "ghost", size: "sm", className: "w-full" })}>
-              <LogOut className="h-4 w-4" /> {hasToken ? "Logout" : "Clear session"}
+              <LogOut className="h-4 w-4" /> Logout
             </button>
           </div>
         </aside>

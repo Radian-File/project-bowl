@@ -1,13 +1,13 @@
 import { Badge, Card, SectionLabel, buttonClasses } from "@projectbowl/ui";
 import { AlertCircle, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import { listPublicProjects } from "@/lib/api";
+import { listPublicProjectsFromSupabase } from "@/lib/data/projects";
 import { projects } from "@/lib/portfolio-data";
 import { normalizeApiProject } from "@/lib/project-view";
 
 async function getDisplayProjects() {
   try {
-    const apiProjects = await listPublicProjects();
+    const apiProjects = await listPublicProjectsFromSupabase();
     if (apiProjects.length > 0) {
       return { projects: apiProjects.map(normalizeApiProject), source: "api" as const, error: null };
     }

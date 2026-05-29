@@ -5,7 +5,7 @@ import { AlertCircle, ArrowLeft, ArrowUpRight, CheckCircle2 } from "lucide-react
 import { Badge, Card, SectionLabel, buttonClasses } from "@projectbowl/ui";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
-import { getPublicProject } from "@/lib/api";
+import { getPublicProjectFromSupabase } from "@/lib/data/projects";
 import { getProject, projects } from "@/lib/portfolio-data";
 import { normalizeApiProject } from "@/lib/project-view";
 
@@ -15,7 +15,7 @@ type ProjectPageProps = {
 
 async function getProjectForPage(slug: string) {
   try {
-    const apiProject = await getPublicProject(slug);
+    const apiProject = await getPublicProjectFromSupabase(slug);
     return { project: normalizeApiProject(apiProject), source: "api" as const, error: null };
   } catch (error) {
     const fallback = getProject(slug);

@@ -121,32 +121,26 @@ export class ApiError extends Error {
   }
 }
 
-const TOKEN_KEY = "projectbowl.authToken";
-const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+const API_BASE = "/api";
 
 export function isApiConfigured() {
-  return Boolean(API_URL);
+  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 }
 
 export function getApiUrl() {
-  return API_URL;
+  return API_BASE;
 }
 
 export function getAuthToken() {
-  if (typeof window === "undefined") return null;
-  return window.localStorage.getItem(TOKEN_KEY);
+  return null;
 }
 
-export function setAuthToken(token: string) {
-  if (typeof window !== "undefined") {
-    window.localStorage.setItem(TOKEN_KEY, token);
-  }
+export function setAuthToken(_token: string) {
+  // Supabase Auth stores session cookies/local state through @supabase/ssr.
 }
 
 export function clearAuthToken() {
-  if (typeof window !== "undefined") {
-    window.localStorage.removeItem(TOKEN_KEY);
-  }
+  // Supabase Auth clears session through the browser/server client.
 }
 
 function readMessage(payload: unknown, fallback: string) {
@@ -175,10 +169,6 @@ type ApiRequestOptions = RequestInit & {
 };
 
 export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
-  if (!API_URL) {
-    throw new ApiError("NEXT_PUBLIC_API_URL is not configured. Using local fallback UI where available.");
-  }
-
   const { auth = true, headers, body, ...init } = options;
   const requestHeaders = new Headers(headers);
   if (body && !requestHeaders.has("Content-Type")) {
@@ -190,7 +180,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     requestHeaders.set("Authorization", `Bearer ${token}`);
   }
 
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await fetch(toInternalApiPath(path), {
     cache: "no-store",
     ...init,
     body,
@@ -222,36 +212,18 @@ async function requestFirst<T>(paths: string[], options: ApiRequestOptions = {})
 }
 
 export async function login(email: string, password: string) {
-  const response = await apiRequest<Record<string, unknown>>("/auth/login", {
-    method: "POST",
-    auth: false,
-    body: JSON.stringify({ email, password }),
-  });
-  const token =
-    typeof response.accessToken === "string"
-      ? response.accessToken
-      : typeof response.token === "string"
-        ? response.token
-        : typeof response.access_token === "string"
-          ? response.access_token
-          : null;
-
-  if (!token) {
-    throw new ApiError("Login succeeded but the response did not include an access token.");
-  }
-
-  setAuthToken(token);
-  return response;
+  const { createSupabaseBrowserClient } = await import("@/lib/supabase/browser");
+  const supabase = createSupabaseBrowserClient();
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw new ApiError(error.message, error.status);
+  return data as unknown as Record<string, unknown>;
 }
 
 export async function logout() {
-  try {
-    await apiRequest("/auth/logout", { method: "POST" });
-  } catch {
-    // Auth is still evolving; clear the local token even when the endpoint is not available yet.
-  } finally {
-    clearAuthToken();
-  }
+  const { createSupabaseBrowserClient } = await import("@/lib/supabase/browser");
+  const supabase = createSupabaseBrowserClient();
+  await supabase.auth.signOut();
+  clearAuthToken();
 }
 
 export function listPublicProjects() {
@@ -377,6 +349,12 @@ export function compactPayload<T extends object>(payload: T): Partial<T> {
   return Object.fromEntries(
     Object.entries(payload).filter(([, value]) => value !== undefined && value !== ""),
   ) as Partial<T>;
+}
+
+function toInternalApiPath(path: string) {
+  if (/^https?:\/\//.test(path)) return path;
+  if (path.startsWith("/api/")) return path;
+  return `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
 function extractGeneratedText(response: Record<string, unknown>) {

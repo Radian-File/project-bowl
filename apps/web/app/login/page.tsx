@@ -64,13 +64,13 @@ export default function LoginPage() {
             </div>
             <div>
               <h2 className="font-display text-2xl font-semibold text-white">ProjectBowl Login</h2>
-              <p className="text-sm text-slate-500">Bearer token stored in localStorage for Wave 2.</p>
+              <p className="text-sm text-slate-500">Supabase Auth session for the fullstack Vercel app.</p>
             </div>
           </div>
 
           {!isApiConfigured() ? (
             <div className="mb-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100">
-              <div className="flex gap-2"><AlertCircle className="h-5 w-5 shrink-0" /> NEXT_PUBLIC_API_URL is missing. Login will work after the API URL is configured.</div>
+              <div className="flex gap-2"><AlertCircle className="h-5 w-5 shrink-0" /> Supabase env is missing. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to enable login.</div>
             </div>
           ) : null}
 
@@ -98,10 +98,10 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm leading-6 text-slate-400">
-            Auth endpoints are evolving in Wave 2. If backend auth is not merged yet, use the public portfolio while this page remains ready for POST /auth/login.
+            Auth now uses Supabase email/password. Create your admin user manually in Supabase Auth, then assign a role in the profiles table.
           </div>
-          <Link href="/dashboard" className={buttonClasses({ variant: "ghost", className: "mt-4 w-full" })}>
-            Continue to dashboard shell
+          <Link href="/" className={buttonClasses({ variant: "ghost", className: "mt-4 w-full" })}>
+            Continue to public portfolio
           </Link>
         </Card>
       </section>
