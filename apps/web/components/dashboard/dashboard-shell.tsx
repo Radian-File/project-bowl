@@ -4,13 +4,14 @@ import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Badge, buttonClasses } from "@projectbowl/ui";
-import { Bot, FolderKanban, Gauge, Home, LogOut, Menu, Plus, Sparkles, X } from "lucide-react";
+import { Bot, FolderKanban, Gauge, Home, Layers3, LogOut, Menu, Plus, Sparkles, X } from "lucide-react";
 import { isApiConfigured, logout } from "@/lib/api";
 
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: Gauge },
   { href: "/dashboard/projects", label: "Projects", icon: FolderKanban },
   { href: "/dashboard/projects/new", label: "Create", icon: Plus },
+  { href: "/dashboard/tech", label: "Tech", icon: Layers3 },
   { href: "/dashboard/ai", label: "AI Studio", icon: Bot },
 ];
 

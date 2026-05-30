@@ -8,6 +8,7 @@ User menjalankan migrasi Supabase dan deployment Vercel secara manual. File di f
 | --- | --- |
 | `schema.sql` | Membuat tabel, index, trigger, function, RLS, dan policies. Aman dijalankan ulang untuk bagian trigger/policy. |
 | `seed.sql` | Data demo opsional: tech stacks + project `ProjectBowl`. |
+| `site-tech-stack.sql` | Tabel + seed untuk mengatur section homepage `/#stack` dari dashboard `/dashboard/tech`. Jalankan setelah `schema.sql`. |
 | `verify.sql` | Query pengecekan setelah migration/seed/admin setup. |
 
 ## 1. Create Supabase Project
@@ -28,6 +29,7 @@ User menjalankan migrasi Supabase dan deployment Vercel secara manual. File di f
 3. Copy seluruh isi `schema.sql`.
 4. Run.
 5. Kalau sukses, lanjut opsional copy seluruh isi `seed.sql`, lalu Run.
+6. Copy seluruh isi `site-tech-stack.sql`, lalu Run untuk mengaktifkan manager homepage Tech Stack di `/dashboard/tech`.
 
 ## 3. Create Admin User
 

@@ -22,6 +22,28 @@ export type ApiTechStack = {
   description?: string | null;
 };
 
+export type ApiSiteTechStackItem = {
+  id: string;
+  techStackId?: string | null;
+  techStack?: ApiTechStack | null;
+  name: string;
+  groupName: string;
+  category: TechStackCategory | string;
+  sortOrder: number;
+  isVisible: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type SiteTechStackPayload = {
+  techStackId?: string | null;
+  name: string;
+  groupName: string;
+  category?: TechStackCategory;
+  sortOrder?: number;
+  isVisible?: boolean;
+};
+
 export type ProjectTechStackLink = {
   techStackId?: string;
   sortOrder?: number;
@@ -279,6 +301,30 @@ export function createTechStack(payload: Partial<ApiTechStack> & { name: string 
   return apiRequest<ApiTechStack>("/tech-stacks", {
     method: "POST",
     body: JSON.stringify(compactPayload(payload)),
+  });
+}
+
+export function listSiteTechStackItems() {
+  return apiRequest<ApiSiteTechStackItem[]>("/site-tech-stack");
+}
+
+export function createSiteTechStackItem(payload: SiteTechStackPayload) {
+  return apiRequest<ApiSiteTechStackItem>("/site-tech-stack", {
+    method: "POST",
+    body: JSON.stringify(compactPayload(payload)),
+  });
+}
+
+export function updateSiteTechStackItem(id: string, payload: Partial<SiteTechStackPayload>) {
+  return apiRequest<ApiSiteTechStackItem>(`/site-tech-stack/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify(compactPayload(payload)),
+  });
+}
+
+export function deleteSiteTechStackItem(id: string) {
+  return apiRequest<{ id: string; deleted: boolean }>(`/site-tech-stack/${encodeURIComponent(id)}`, {
+    method: "DELETE",
   });
 }
 

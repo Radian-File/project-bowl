@@ -17,7 +17,8 @@ where schemaname = 'public'
     'tasks',
     'project_milestones',
     'activity_logs',
-    'ai_generation_logs'
+    'ai_generation_logs',
+    'site_tech_stack_items'
   )
 order by relname;
 
@@ -37,7 +38,8 @@ where schemaname = 'public'
     'tasks',
     'project_milestones',
     'activity_logs',
-    'ai_generation_logs'
+    'ai_generation_logs',
+    'site_tech_stack_items'
   )
 order by tablename;
 
@@ -62,7 +64,18 @@ select
 from public.projects
 order by created_at desc;
 
--- 5. Check admin/editor profiles.
+-- 5. Check homepage tech stack items.
+select
+  id,
+  name,
+  group_name,
+  category,
+  sort_order,
+  is_visible
+from public.site_tech_stack_items
+order by group_name, sort_order, name;
+
+-- 6. Check admin/editor profiles.
 select
   id,
   email,
