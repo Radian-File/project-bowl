@@ -18,7 +18,6 @@ import {
 import {
   buildStackOptions,
   findMatchingTechStack,
-  isStackOptionSelected,
   normalizeTechKey,
   siteStackGroups,
   techStackCategories,
@@ -60,6 +59,16 @@ export default function DashboardTechPage() {
 
   const stackOptions = useMemo(() => buildStackOptions(techStacks, category, search), [category, search, techStacks]);
   const groupedItems = useMemo(() => groupSiteStackItems(items), [items]);
+
+  function handleGroupChange(nextGroup: SiteStackGroupName) {
+    setGroupName(nextGroup);
+    setCategory(defaultCategoryForGroup(nextGroup));
+  }
+
+  function handleCustomGroupChange(nextGroup: SiteStackGroupName) {
+    setCustomGroupName(nextGroup);
+    setCustomCategory(defaultCategoryForGroup(nextGroup));
+  }
 
   async function ensureMasterStack(name: string, stackCategory: TechStackCategory, existingId?: string) {
     if (existingId) {
@@ -230,7 +239,7 @@ export default function DashboardTechPage() {
             <div className="grid gap-3">
               <label className="grid gap-2">
                 <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Target group</span>
-                <select className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none" value={groupName} onChange={(event) => setGroupName(event.target.value as SiteStackGroupName)}>
+                <select className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none" value={groupName} onChange={(event) => handleGroupChange(event.target.value as SiteStackGroupName)}>
                   {siteStackGroups.map((group) => <option key={group} value={group}>{group}</option>)}
                 </select>
               </label>
@@ -250,7 +259,7 @@ export default function DashboardTechPage() {
                 <select className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none" value="" onChange={(event) => handleSelectPreset(event.target.value)} disabled={isMutating || isLoading}>
                   <option value="">{isMutating ? "Adding stack..." : "Choose a stack"}</option>
                   {stackOptions.map((option) => {
-                    const selected = isStackOptionSelected(option, items.map((item) => item.techStackId ?? "").filter(Boolean), techStacks) && items.some((item) => item.groupName === groupName && normalizeTechKey(item.name) === normalizeTechKey(option.name));
+                    const selected = isStackAlreadyInGroup(option.name, groupName, items);
                     return <option key={option.key} value={option.key} disabled={selected}>{option.name}{selected ? " ✓" : option.id ? "" : " · preset"}</option>;
                   })}
                 </select>
@@ -263,7 +272,7 @@ export default function DashboardTechPage() {
             <p className="mt-1 text-sm text-slate-500">Kalau opsi tidak ada di preset, buat manual di sini.</p>
             <div className="mt-5 grid gap-3">
               <Input value={customName} onChange={(event) => setCustomName(event.target.value)} placeholder="Example: Payload CMS" />
-              <select className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none" value={customGroupName} onChange={(event) => setCustomGroupName(event.target.value as SiteStackGroupName)}>
+              <select className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none" value={customGroupName} onChange={(event) => handleCustomGroupChange(event.target.value as SiteStackGroupName)}>
                 {siteStackGroups.map((group) => <option key={group} value={group}>{group}</option>)}
               </select>
               <select className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none" value={customCategory} onChange={(event) => setCustomCategory(event.target.value as TechStackCategory)}>
@@ -293,4 +302,16 @@ function groupSiteStackItems(items: ApiSiteTechStackItem[]) {
 
 function compareSiteStackItems(a: ApiSiteTechStackItem, b: ApiSiteTechStackItem) {
   return a.groupName.localeCompare(b.groupName) || a.sortOrder - b.sortOrder || a.name.localeCompare(b.name);
+}
+
+function isStackAlreadyInGroup(name: string, groupName: SiteStackGroupName, items: ApiSiteTechStackItem[]) {
+  return items.some((item) => item.groupName === groupName && normalizeTechKey(item.name) === normalizeTechKey(name));
+}
+
+function defaultCategoryForGroup(groupName: SiteStackGroupName): TechStackCategory {
+  if (groupName === "Frontend") return "FRONTEND";
+  if (groupName === "Backend") return "BACKEND";
+  if (groupName === "Data & AI") return "AI";
+  if (groupName === "Cloud & DevX") return "DEVOPS";
+  return "OTHER";
 }

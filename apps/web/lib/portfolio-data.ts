@@ -19,8 +19,8 @@ export const profile = {
   name: "Achmad Ricky Radhiansyah Putra",
   shortName: "Achmad Ricky R.P.",
   role: "Fullstack developer",
-  location: "Bandung, Indonesia · GMT+7",
-  email: "hi@ricky.dev",
+  location: "Bandung & Bekasi, Indonesia · GMT+7",
+  email: "radianp02@gmail.com",
   headline: "Dari ide mentah jadi produk digital yang siap launch.",
   intro:
     "Hi, saya Achmad Ricky Radhiansyah Putra — software engineering enthusiast yang suka bikin interface clean, backend yang pragmatic, dan workflow produk yang AI-ready.",
