@@ -31,9 +31,27 @@ export async function POST(request: Request) {
         primaryLanguage: github.primaryLanguage,
         languages: github.languages,
         topics: github.topics,
+        techHints: collectGitHubTechHints(github),
       },
     });
   } catch (error) {
     return jsonError(error, 503);
   }
+}
+
+function collectGitHubTechHints(github: Awaited<ReturnType<typeof getGitHubRepoContext>>) {
+  const packageJson = github.packageJson;
+  const packageNames = packageJson
+    ? [
+        ...Object.keys(packageJson.dependencies ?? {}),
+        ...Object.keys(packageJson.devDependencies ?? {}),
+      ]
+    : [];
+
+  return Array.from(new Set([
+    github.primaryLanguage,
+    ...github.languages,
+    ...github.topics,
+    ...packageNames,
+  ].filter((item): item is string => Boolean(item)))).slice(0, 40);
 }

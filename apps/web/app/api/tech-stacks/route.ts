@@ -2,6 +2,8 @@ import type { ApiTechStack } from "@/lib/api";
 import { createTechStackInSupabase, listTechStacksFromSupabase } from "@/lib/data/projects";
 import { jsonError, jsonOk, readJson } from "@/lib/server/route-response";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     return jsonOk(await listTechStacksFromSupabase());
