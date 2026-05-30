@@ -3,7 +3,7 @@ import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
 import { profile } from "@/lib/portfolio-data";
 
-const serviceUrl = "https://rrs-website.vercel.com";
+const serviceUrl = "https://rrs-website.vercel.app";
 const phoneNumber = "+62 812 9524 8513";
 const whatsappUrl = "https://wa.me/6281295248513";
 
