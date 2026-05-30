@@ -1,5 +1,5 @@
-import { Badge, Button, Card, SectionLabel, buttonClasses } from "@projectbowl/ui";
-import { ArrowDownToLine, ArrowRight, Sparkles } from "lucide-react";
+import { Badge, Card, SectionLabel, buttonClasses } from "@projectbowl/ui";
+import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { profile, stats } from "@/lib/portfolio-data";
 
@@ -20,9 +20,9 @@ export function HeroSection() {
           <Link href="#projectbowl" className={buttonClasses({ variant: "secondary", size: "lg" })}>
             Buka ProjectBowl
           </Link>
-          <Button variant="ghost" size="lg" title="CV file will be connected later">
-            Download CV <ArrowDownToLine className="h-4 w-4" />
-          </Button>
+          <Link href="/cv" className={buttonClasses({ variant: "ghost", size: "lg" })}>
+            Lihat CV <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
 
         <div className="mt-12 grid max-w-2xl gap-3 sm:grid-cols-3">
