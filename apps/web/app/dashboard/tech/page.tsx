@@ -35,6 +35,7 @@ export default function DashboardTechPage() {
   const [customCategory, setCustomCategory] = useState<TechStackCategory>("FRONTEND");
   const [isLoading, setIsLoading] = useState(true);
   const [isMutating, setIsMutating] = useState(false);
+  const [isMissingMigration, setIsMissingMigration] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -43,8 +44,15 @@ export default function DashboardTechPage() {
     Promise.allSettled([listSiteTechStackItems(), listTechStacks()])
       .then(([siteResult, stackResult]) => {
         if (!active) return;
-        if (siteResult.status === "fulfilled") setItems(siteResult.value);
-        else setError(siteResult.reason instanceof Error ? siteResult.reason.message : "Could not load homepage tech stack.");
+        if (siteResult.status === "fulfilled") {
+          setItems(siteResult.value);
+          setIsMissingMigration(false);
+        } else {
+          const message = siteResult.reason instanceof Error ? siteResult.reason.message : "Could not load homepage tech stack.";
+          const missingMigration = isMissingSiteTechStackTableError(message);
+          setIsMissingMigration(missingMigration);
+          setError(missingMigration ? missingMigrationMessage : message);
+        }
 
         if (stackResult.status === "fulfilled") setTechStacks(stackResult.value);
       })
@@ -98,6 +106,11 @@ export default function DashboardTechPage() {
   }
 
   async function handleSelectPreset(optionKey: string) {
+    if (isMissingMigration) {
+      setError(missingMigrationMessage);
+      return;
+    }
+
     const option = stackOptions.find((item) => item.key === optionKey);
     if (!option) return;
 
@@ -120,6 +133,11 @@ export default function DashboardTechPage() {
   }
 
   async function handleCreateCustom() {
+    if (isMissingMigration) {
+      setError(missingMigrationMessage);
+      return;
+    }
+
     if (!customName.trim()) {
       setError("Isi nama tech stack custom dulu.");
       return;
@@ -145,6 +163,11 @@ export default function DashboardTechPage() {
   }
 
   async function handleToggleVisible(item: ApiSiteTechStackItem) {
+    if (isMissingMigration) {
+      setError(missingMigrationMessage);
+      return;
+    }
+
     setIsMutating(true);
     setError(null);
     setMessage(null);
@@ -159,6 +182,11 @@ export default function DashboardTechPage() {
   }
 
   async function handleDelete(item: ApiSiteTechStackItem) {
+    if (isMissingMigration) {
+      setError(missingMigrationMessage);
+      return;
+    }
+
     const confirmed = window.confirm(`Remove ${item.name} from ${item.groupName}?`);
     if (!confirmed) return;
 
@@ -189,6 +217,7 @@ export default function DashboardTechPage() {
 
       {isLoading ? <Card className="flex items-center gap-3 p-6 text-slate-300"><Loader2 className="h-5 w-5 animate-spin text-cyan-200" /> Loading tech stack manager...</Card> : null}
       {error ? <div className="flex gap-2 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm leading-6 text-amber-100"><AlertCircle className="mt-0.5 h-5 w-5 shrink-0" /> <span>{error}</span></div> : null}
+      {isMissingMigration ? <MigrationNotice /> : null}
       {message ? <div className="rounded-2xl border border-lime-300/20 bg-lime-300/10 p-4 text-sm text-lime-100">{message}</div> : null}
 
       <div className="grid gap-6 xl:grid-cols-[1fr_0.75fr]">
@@ -256,7 +285,7 @@ export default function DashboardTechPage() {
               </label>
               <label className="grid gap-2">
                 <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Stack</span>
-                <select className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none" value="" onChange={(event) => handleSelectPreset(event.target.value)} disabled={isMutating || isLoading}>
+                <select className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none disabled:cursor-not-allowed disabled:opacity-50" value="" onChange={(event) => handleSelectPreset(event.target.value)} disabled={isMutating || isLoading || isMissingMigration}>
                   <option value="">{isMutating ? "Adding stack..." : "Choose a stack"}</option>
                   {stackOptions.map((option) => {
                     const selected = isStackAlreadyInGroup(option.name, groupName, items);
@@ -271,14 +300,14 @@ export default function DashboardTechPage() {
             <h3 className="font-display text-2xl font-semibold text-white">Create custom stack</h3>
             <p className="mt-1 text-sm text-slate-500">Kalau opsi tidak ada di preset, buat manual di sini.</p>
             <div className="mt-5 grid gap-3">
-              <Input value={customName} onChange={(event) => setCustomName(event.target.value)} placeholder="Example: Payload CMS" />
+              <Input value={customName} onChange={(event) => setCustomName(event.target.value)} placeholder="Example: Payload CMS" disabled={isMissingMigration} />
               <select className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none" value={customGroupName} onChange={(event) => handleCustomGroupChange(event.target.value as SiteStackGroupName)}>
                 {siteStackGroups.map((group) => <option key={group} value={group}>{group}</option>)}
               </select>
               <select className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none" value={customCategory} onChange={(event) => setCustomCategory(event.target.value as TechStackCategory)}>
                 {techStackCategories.map((item) => <option key={item} value={item}>{item}</option>)}
               </select>
-              <button type="button" className={buttonClasses({ variant: "secondary" })} onClick={handleCreateCustom} disabled={isMutating}>
+              <button type="button" className={buttonClasses({ variant: "secondary" })} onClick={handleCreateCustom} disabled={isMutating || isMissingMigration}>
                 {isMutating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Add custom stack
               </button>
             </div>
@@ -286,6 +315,30 @@ export default function DashboardTechPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+const missingMigrationMessage = "Database table untuk Homepage Tech Stack belum dibuat. Jalankan apps/web/supabase/site-tech-stack.sql di Supabase SQL Editor, lalu refresh halaman ini.";
+
+function MigrationNotice() {
+  return (
+    <Card className="border-amber-300/20 bg-amber-300/[0.04] p-5">
+      <div className="flex gap-3">
+        <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-200" />
+        <div className="space-y-3 text-sm leading-6 text-amber-50/90">
+          <div>
+            <p className="font-semibold text-amber-100">Migration Tech Stack belum dijalankan.</p>
+            <p className="mt-1 text-amber-100/80">Supabase mengembalikan table <span className="font-mono">public.site_tech_stack_items</span> belum ada. Ini berarti fitur dashboard Tech sudah ada di code, tapi database belum punya tabel barunya.</p>
+          </div>
+          <ol className="list-decimal space-y-1 pl-5 text-amber-100/80">
+            <li>Buka Supabase Dashboard → SQL Editor.</li>
+            <li>Copy seluruh isi file <span className="font-mono">apps/web/supabase/site-tech-stack.sql</span>.</li>
+            <li>Run query, lalu jalankan <span className="font-mono">notify pgrst, 'reload schema';</span> jika schema cache belum refresh.</li>
+            <li>Refresh halaman ini.</li>
+          </ol>
+        </div>
+      </div>
+    </Card>
   );
 }
 
@@ -314,4 +367,9 @@ function defaultCategoryForGroup(groupName: SiteStackGroupName): TechStackCatego
   if (groupName === "Data & AI") return "AI";
   if (groupName === "Cloud & DevX") return "DEVOPS";
   return "OTHER";
+}
+
+function isMissingSiteTechStackTableError(message: string) {
+  const normalized = message.toLowerCase();
+  return normalized.includes("site_tech_stack_items") && (normalized.includes("schema cache") || normalized.includes("could not find the table") || normalized.includes("does not exist"));
 }

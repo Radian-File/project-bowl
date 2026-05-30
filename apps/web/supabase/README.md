@@ -64,6 +64,28 @@ Expected:
 - Minimal 1 profile role `ADMIN` jika admin sudah dibuat.
 - Jika `seed.sql` dijalankan, project `projectbowl` muncul dengan `visibility = PUBLIC`.
 
+### Troubleshooting `/dashboard/tech`
+
+Jika dashboard Tech menampilkan error:
+
+```txt
+Could not find the table 'public.site_tech_stack_items' in the schema cache
+```
+
+Jalankan query ini di Supabase SQL Editor untuk verifikasi:
+
+```sql
+select to_regclass('public.site_tech_stack_items') as site_stack_table;
+```
+
+Jika hasilnya `null`, copy seluruh isi `site-tech-stack.sql` lalu Run. Setelah itu, jika REST API masih membaca schema lama, jalankan:
+
+```sql
+notify pgrst, 'reload schema';
+```
+
+Lalu refresh `/dashboard/tech`.
+
 ## 5. Local Environment Variables
 
 Buat file lokal:
