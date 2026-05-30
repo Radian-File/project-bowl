@@ -40,7 +40,7 @@ export function HeroSection() {
         <div className="relative rounded-[1.25rem] border border-white/10 bg-black/35 p-5">
           <div className="mb-6 flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm text-slate-500">projectbowl.app/dashboard</p>
+              <p className="text-sm text-slate-500">projectbowl.app</p>
               <h2 className="font-display text-2xl font-semibold text-white">Workspace Portfolio</h2>
             </div>
             <Badge tone="lime">Online</Badge>

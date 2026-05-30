@@ -32,7 +32,7 @@ export function ProjectBowlSection() {
               ))}
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/projects/projectbowl" className={buttonClasses()}>
+              <Link href="/" className={buttonClasses()}>
                 Buka ProjectBowl <ArrowRight className="h-4 w-4" />
               </Link>
               <Link href="#ai" className={buttonClasses({ variant: "secondary" })}>
@@ -45,7 +45,7 @@ export function ProjectBowlSection() {
             <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4">
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-500">projectbowl.app/dashboard</p>
+                  <p className="text-sm text-slate-500">projectbowl.app</p>
                   <h3 className="font-display text-xl font-semibold text-white">8 in progress · 2 siap publish</h3>
                 </div>
                 <Badge tone="purple">Generate</Badge>
