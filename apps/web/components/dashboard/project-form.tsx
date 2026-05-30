@@ -17,7 +17,7 @@ import {
   listTechStacks,
   updateProject,
 } from "@/lib/api";
-import { getCoverImage, getTechIds, getTechNames } from "@/lib/project-view";
+import { getCoverImage, getTechIds } from "@/lib/project-view";
 
 const statuses: ProjectStatus[] = ["IDEA", "PLANNING", "IN_PROGRESS", "SHIPPED", "ARCHIVED"];
 const visibilities: ProjectVisibility[] = ["PRIVATE", "PUBLIC", "UNLISTED"];
@@ -40,7 +40,6 @@ type FormState = {
   completedAt: string;
   coverImageUrl: string;
   techStackIds: string[];
-  quickTech: string;
 };
 
 export function ProjectForm({ mode, initialProject }: { mode: "create" | "edit"; initialProject?: ApiProject }) {
@@ -52,12 +51,14 @@ export function ProjectForm({ mode, initialProject }: { mode: "create" | "edit";
   const [githubRepoUrl, setGithubRepoUrl] = useState(initialProject?.repositoryUrl?.includes("github.com") ? initialProject.repositoryUrl : "");
   const [githubNotes, setGithubNotes] = useState("");
   const [isGeneratingGithub, setIsGeneratingGithub] = useState(false);
-  const [isGeneratingStacks, setIsGeneratingStacks] = useState(false);
+  const [isAddingStack, setIsAddingStack] = useState(false);
   const [githubMessage, setGithubMessage] = useState<string | null>(null);
   const [techMessage, setTechMessage] = useState<string | null>(null);
   const [techError, setTechError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [stackCategoryFilter, setStackCategoryFilter] = useState<TechStackCategory | "ALL">("FRONTEND");
+  const [stackSearch, setStackSearch] = useState("");
   const [isLoadingTech, setIsLoadingTech] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -78,11 +79,12 @@ export function ProjectForm({ mode, initialProject }: { mode: "create" | "edit";
     };
   }, []);
 
-  const selectedTechNames = useMemo(() => {
-    const selected = techStacks.filter((tech) => form.techStackIds.includes(tech.id)).map((tech) => tech.name);
-    const quick = splitTechInput(form.quickTech);
-    return dedupeTechNames([...selected, ...quick]);
-  }, [form.quickTech, form.techStackIds, techStacks]);
+  const selectedTechItems = useMemo(() => techStacks.filter((tech) => form.techStackIds.includes(tech.id)), [form.techStackIds, techStacks]);
+
+  const stackOptions = useMemo(
+    () => buildStackOptions(techStacks, stackCategoryFilter, stackSearch),
+    [stackCategoryFilter, stackSearch, techStacks],
+  );
 
   function updateField<Key extends keyof FormState>(key: Key, value: FormState[Key]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -95,61 +97,43 @@ export function ProjectForm({ mode, initialProject }: { mode: "create" | "edit";
     }));
   }
 
-  async function applyTechStackHints(rawHints: string[], sourceLabel: string) {
+  async function selectStackOption(optionKey: string) {
+    const option = stackOptions.find((item) => item.key === optionKey);
+    if (!option) return;
+
+    setIsAddingStack(true);
     setTechError(null);
     setTechMessage(null);
 
-    const suggestions = collectStackSuggestions(rawHints);
-    if (suggestions.length === 0) {
-      setTechError("Belum ada tech stack yang bisa dikenali. Isi hint seperti Next.js, Supabase, TypeScript, Prisma, atau pakai Generate with GitHub.");
-      return { selected: [] as string[], created: [] as string[] };
-    }
-
-    let nextTechStacks = [...techStacks];
-    const selectedIds: string[] = [];
-    const selectedNames: string[] = [];
-    const createdNames: string[] = [];
-
-    for (const suggestion of suggestions) {
-      let stack = findMatchingTechStack(nextTechStacks, suggestion.name);
+    try {
+      let stack = option.id ? techStacks.find((item) => item.id === option.id) : findMatchingTechStack(techStacks, option.name);
+      let wasCreated = false;
 
       if (!stack) {
         try {
-          stack = await createTechStack({ name: suggestion.name, category: suggestion.category });
-          nextTechStacks = [...nextTechStacks, stack];
-          createdNames.push(stack.name);
+          stack = await createTechStack({ name: option.name, category: option.category });
+          wasCreated = true;
         } catch (err) {
-          const latestStacks = await listTechStacks().catch(() => nextTechStacks);
-          nextTechStacks = latestStacks;
-          stack = findMatchingTechStack(nextTechStacks, suggestion.name);
+          const latestStacks = await listTechStacks().catch(() => techStacks);
+          setTechStacks(latestStacks);
+          stack = findMatchingTechStack(latestStacks, option.name);
           if (!stack) throw err;
         }
       }
 
-      if (!selectedIds.includes(stack.id)) {
-        selectedIds.push(stack.id);
-        selectedNames.push(stack.name);
-      }
-    }
-
-    setTechStacks(nextTechStacks.sort((a, b) => a.name.localeCompare(b.name)));
-    setForm((current) => ({
-      ...current,
-      techStackIds: Array.from(new Set([...current.techStackIds, ...selectedIds])),
-    }));
-
-    setTechMessage(`${sourceLabel}: ${selectedNames.length} stack dipilih${createdNames.length ? `, ${createdNames.length} stack baru dibuat` : ""}.`);
-    return { selected: selectedNames, created: createdNames };
-  }
-
-  async function handleGenerateStacks() {
-    setIsGeneratingStacks(true);
-    try {
-      await applyTechStackHints(collectTechHintsFromForm(form, githubRepoUrl, githubNotes), "Generate stack");
+      setTechStacks((current) => {
+        const exists = current.some((item) => item.id === stack.id);
+        return (exists ? current : [...current, stack]).sort((a, b) => a.name.localeCompare(b.name));
+      });
+      setForm((current) => ({
+        ...current,
+        techStackIds: current.techStackIds.includes(stack.id) ? current.techStackIds : [...current.techStackIds, stack.id],
+      }));
+      setTechMessage(`${stack.name} ditambahkan${wasCreated ? " ke master stack dan" : ""} ke project.`);
     } catch (err) {
-      setTechError(err instanceof Error ? err.message : "Could not generate tech stack.");
+      setTechError(err instanceof Error ? err.message : "Could not add tech stack.");
     } finally {
-      setIsGeneratingStacks(false);
+      setIsAddingStack(false);
     }
   }
 
@@ -169,12 +153,7 @@ export function ProjectForm({ mode, initialProject }: { mode: "create" | "edit";
         throw new Error("AI belum mengembalikan structured fields. Coba tambahkan notes yang lebih jelas atau retry.");
       }
 
-      const github = result.github as { htmlUrl?: string; languages?: string[]; topics?: string[]; techHints?: string[] } | undefined;
-      const techHints = dedupeTechNames([
-        ...(github?.techHints ?? []),
-        ...(github?.languages ?? []),
-        ...(github?.topics ?? []),
-      ]).slice(0, 16);
+      const github = result.github as { htmlUrl?: string } | undefined;
 
       setForm((current) => ({
         ...current,
@@ -185,18 +164,9 @@ export function ProjectForm({ mode, initialProject }: { mode: "create" | "edit";
         problem: result.fields?.problem || current.problem,
         solution: result.fields?.solution || current.solution,
         repositoryUrl: github?.htmlUrl ?? githubRepoUrl.trim(),
-        quickTech: techHints.length > 0 ? techHints.join(", ") : current.quickTech,
       }));
 
-      let stackMessage = "";
-      if (techHints.length > 0) {
-        const applied = await applyTechStackHints(techHints, "GitHub stack");
-        if (applied.selected.length > 0) {
-          stackMessage = ` ${applied.selected.length} tech stack juga otomatis dipilih.`;
-        }
-      }
-
-      setGithubMessage(`Draft dari GitHub berhasil dibuat.${stackMessage} Review dulu field-nya sebelum save.`);
+      setGithubMessage("Draft dari GitHub berhasil dibuat. Pilih tech stack manual dari dropdown sebelum save.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Generate with GitHub gagal.");
     } finally {
@@ -206,18 +176,30 @@ export function ProjectForm({ mode, initialProject }: { mode: "create" | "edit";
 
   async function handleCreateTech() {
     setTechError(null);
+    setTechMessage(null);
     if (!newTechName.trim()) {
       setTechError("Enter a tech stack name first.");
       return;
     }
 
+    setIsAddingStack(true);
     try {
-      const created = await createTechStack({ name: newTechName.trim(), category: newTechCategory });
-      setTechStacks((current) => [...current, created].sort((a, b) => a.name.localeCompare(b.name)));
-      setForm((current) => ({ ...current, techStackIds: [...current.techStackIds, created.id] }));
+      const existing = findMatchingTechStack(techStacks, newTechName.trim());
+      const stack = existing ?? await createTechStack({ name: newTechName.trim(), category: newTechCategory });
+      setTechStacks((current) => {
+        const exists = current.some((item) => item.id === stack.id);
+        return (exists ? current : [...current, stack]).sort((a, b) => a.name.localeCompare(b.name));
+      });
+      setForm((current) => ({
+        ...current,
+        techStackIds: current.techStackIds.includes(stack.id) ? current.techStackIds : [...current.techStackIds, stack.id],
+      }));
       setNewTechName("");
+      setTechMessage(existing ? `${stack.name} sudah ada dan dipilih untuk project.` : `${stack.name} dibuat dan dipilih untuk project.`);
     } catch (err) {
       setTechError(err instanceof Error ? err.message : "Could not create tech stack.");
+    } finally {
+      setIsAddingStack(false);
     }
   }
 
@@ -390,32 +372,57 @@ export function ProjectForm({ mode, initialProject }: { mode: "create" | "edit";
             {isLoadingTech ? <div className="flex items-center gap-2 text-sm text-slate-400"><Loader2 className="h-4 w-4 animate-spin" /> Loading stacks...</div> : null}
             {techError ? <div className="rounded-2xl border border-amber-300/20 bg-amber-300/10 p-3 text-sm text-amber-100"><AlertCircle className="mr-2 inline h-4 w-4" />{techError}</div> : null}
             {techMessage ? <div className="rounded-2xl border border-lime-300/20 bg-lime-300/10 p-3 text-sm text-lime-100">{techMessage}</div> : null}
-            <div className="flex flex-wrap gap-2">
-              {techStacks.map((tech) => (
-                <button key={tech.id} type="button" onClick={() => toggleTech(tech.id)} className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${form.techStackIds.includes(tech.id) ? "border-cyan-300/40 bg-cyan-300/15 text-cyan-100" : "border-white/10 bg-white/[0.04] text-slate-400 hover:text-white"}`}>
-                  {tech.name}
-                </button>
-              ))}
+
+            <div className="space-y-2 rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Selected stacks</p>
+              {selectedTechItems.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {selectedTechItems.map((tech) => (
+                    <button key={tech.id} type="button" onClick={() => toggleTech(tech.id)} className="rounded-full border border-cyan-300/40 bg-cyan-300/15 px-3 py-1.5 text-xs font-semibold text-cyan-100 transition hover:border-rose-300/40 hover:bg-rose-300/10 hover:text-rose-100" title="Click to remove">
+                      {tech.name} ×
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-slate-500">Belum ada stack dipilih.</p>
+              )}
             </div>
-            <div className="grid gap-2">
-              <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
-                <Input value={form.quickTech} onChange={(event) => updateField("quickTech", event.target.value)} placeholder="Tech hints: Next.js, Prisma, Supabase" />
-                <button type="button" className={buttonClasses({ variant: "secondary", size: "sm", className: "shrink-0" })} onClick={handleGenerateStacks} disabled={isGeneratingStacks || isLoadingTech}>
-                  {isGeneratingStacks ? <Loader2 className="h-4 w-4 animate-spin" /> : <WandSparkles className="h-4 w-4" />} Generate
-                </button>
-              </div>
-              <p className="text-xs text-slate-500">Generate akan mencocokkan stack dari hint/repo/copy project, membuat stack baru jika belum ada, lalu memilihnya untuk project ini.</p>
+
+            <div className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+              <label className="grid gap-2">
+                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Category</span>
+                <select className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none" value={stackCategoryFilter} onChange={(event) => setStackCategoryFilter(event.target.value as TechStackCategory | "ALL")}>
+                  <option value="ALL">ALL</option>
+                  {categories.map((category) => <option key={category} value={category}>{category}</option>)}
+                </select>
+              </label>
+              <label className="grid gap-2">
+                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Search</span>
+                <Input value={stackSearch} onChange={(event) => setStackSearch(event.target.value)} placeholder="Search stack: TypeScript, Vue, Supabase..." />
+              </label>
+              <label className="grid gap-2">
+                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Add from preset</span>
+                <select className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none" value="" onChange={(event) => selectStackOption(event.target.value)} disabled={isAddingStack || isLoadingTech}>
+                  <option value="">{isAddingStack ? "Adding stack..." : "Choose a stack"}</option>
+                  {stackOptions.map((option) => {
+                    const selected = isStackOptionSelected(option, form.techStackIds, techStacks);
+                    return <option key={option.key} value={option.key} disabled={selected}>{option.name}{selected ? " ✓" : option.id ? "" : " · preset"}</option>;
+                  })}
+                </select>
+              </label>
+              {stackOptions.length === 0 ? <p className="text-xs text-slate-500">No stack found. Create it manually below.</p> : null}
             </div>
+
             <div className="grid gap-2 rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Create custom stack</p>
               <Input value={newTechName} onChange={(event) => setNewTechName(event.target.value)} placeholder="Create tech stack" />
               <select className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white outline-none" value={newTechCategory} onChange={(event) => setNewTechCategory(event.target.value as TechStackCategory)}>
                 {categories.map((category) => <option key={category} value={category}>{category}</option>)}
               </select>
-              <button type="button" className={buttonClasses({ variant: "secondary", size: "sm" })} onClick={handleCreateTech}>
-                <Plus className="h-4 w-4" /> Add stack
+              <button type="button" className={buttonClasses({ variant: "secondary", size: "sm" })} onClick={handleCreateTech} disabled={isAddingStack}>
+                {isAddingStack ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Add stack
               </button>
             </div>
-            {selectedTechNames.length > 0 ? <div className="flex flex-wrap gap-2">{selectedTechNames.map((name) => <Badge key={name} tone="slate">{name}</Badge>)}</div> : null}
           </div>
         </Card>
 
@@ -448,7 +455,6 @@ function toFormState(project?: ApiProject): FormState {
     completedAt: toDateInput(project?.completedAt),
     coverImageUrl: coverImage?.url ?? "",
     techStackIds: project ? getTechIds(project) : [],
-    quickTech: project ? getTechNames(project).join(", ") : "",
   };
 }
 
@@ -488,177 +494,158 @@ function toDateInput(value?: string | null) {
   return new Date(value).toISOString().slice(0, 10);
 }
 
-type StackSuggestion = {
+type StackPreset = {
   name: string;
   category: TechStackCategory;
 };
 
-const knownStackSuggestions: StackSuggestion[] = [
-  { name: "Next.js", category: "FRONTEND" },
-  { name: "React", category: "FRONTEND" },
-  { name: "TypeScript", category: "FRONTEND" },
+type StackOption = StackPreset & {
+  key: string;
+  id?: string;
+  source: "preset" | "saved";
+};
+
+const presetTechStacks: StackPreset[] = [
+  // Frontend
+  { name: "HTML", category: "FRONTEND" },
+  { name: "CSS", category: "FRONTEND" },
   { name: "JavaScript", category: "FRONTEND" },
-  { name: "Tailwind CSS", category: "FRONTEND" },
-  { name: "Framer Motion", category: "FRONTEND" },
+  { name: "TypeScript", category: "FRONTEND" },
+  { name: "React", category: "FRONTEND" },
+  { name: "Next.js", category: "FRONTEND" },
+  { name: "Vue", category: "FRONTEND" },
+  { name: "Nuxt", category: "FRONTEND" },
+  { name: "Svelte", category: "FRONTEND" },
+  { name: "SvelteKit", category: "FRONTEND" },
+  { name: "Angular", category: "FRONTEND" },
+  { name: "Astro", category: "FRONTEND" },
   { name: "Remix", category: "FRONTEND" },
   { name: "Vite", category: "FRONTEND" },
-  { name: "Vue", category: "FRONTEND" },
-  { name: "Svelte", category: "FRONTEND" },
+  { name: "Tailwind CSS", category: "FRONTEND" },
+  { name: "Bootstrap", category: "FRONTEND" },
+  { name: "Sass", category: "FRONTEND" },
+  { name: "Framer Motion", category: "FRONTEND" },
+  { name: "Zustand", category: "FRONTEND" },
+  { name: "Redux", category: "FRONTEND" },
+  { name: "shadcn/ui", category: "FRONTEND" },
+  { name: "Radix UI", category: "FRONTEND" },
+
+  // Backend
   { name: "Node.js", category: "BACKEND" },
   { name: "Express", category: "BACKEND" },
   { name: "NestJS", category: "BACKEND" },
-  { name: "FastAPI", category: "BACKEND" },
-  { name: "Go", category: "BACKEND" },
+  { name: "Hono", category: "BACKEND" },
+  { name: "Fastify", category: "BACKEND" },
+  { name: "Bun", category: "BACKEND" },
+  { name: "Deno", category: "BACKEND" },
   { name: "Python", category: "BACKEND" },
-  { name: "tRPC", category: "BACKEND" },
+  { name: "FastAPI", category: "BACKEND" },
+  { name: "Django", category: "BACKEND" },
+  { name: "Flask", category: "BACKEND" },
+  { name: "Go", category: "BACKEND" },
+  { name: "Gin", category: "BACKEND" },
+  { name: "Java", category: "BACKEND" },
+  { name: "Spring Boot", category: "BACKEND" },
+  { name: "PHP", category: "BACKEND" },
+  { name: "Laravel", category: "BACKEND" },
+  { name: "Ruby on Rails", category: "BACKEND" },
   { name: "GraphQL", category: "BACKEND" },
+  { name: "tRPC", category: "BACKEND" },
+  { name: "REST API", category: "BACKEND" },
+
+  // Database
   { name: "Supabase", category: "DATABASE" },
-  { name: "Postgres", category: "DATABASE" },
+  { name: "PostgreSQL", category: "DATABASE" },
+  { name: "MySQL", category: "DATABASE" },
+  { name: "SQLite", category: "DATABASE" },
+  { name: "MongoDB", category: "DATABASE" },
+  { name: "Redis", category: "DATABASE" },
   { name: "Prisma", category: "DATABASE" },
   { name: "Drizzle", category: "DATABASE" },
-  { name: "MongoDB", category: "DATABASE" },
-  { name: "MySQL", category: "DATABASE" },
-  { name: "Redis", category: "DATABASE" },
+  { name: "Neon", category: "DATABASE" },
+  { name: "PlanetScale", category: "DATABASE" },
+  { name: "Firebase", category: "DATABASE" },
+  { name: "Firestore", category: "DATABASE" },
+  { name: "ClickHouse", category: "DATABASE" },
+  { name: "pgvector", category: "DATABASE" },
+
+  // AI
   { name: "OpenRouter", category: "AI" },
   { name: "OpenAI", category: "AI" },
   { name: "Anthropic", category: "AI" },
-  { name: "LangChain", category: "AI" },
+  { name: "Gemini", category: "AI" },
   { name: "AI SDK", category: "AI" },
+  { name: "LangChain", category: "AI" },
+  { name: "LlamaIndex", category: "AI" },
+  { name: "Ollama", category: "AI" },
+  { name: "Hugging Face", category: "AI" },
+  { name: "Pinecone", category: "AI" },
+  { name: "Weaviate", category: "AI" },
+
+  // DevOps / Cloud
   { name: "Vercel", category: "DEVOPS" },
-  { name: "Docker", category: "DEVOPS" },
-  { name: "GitHub Actions", category: "DEVOPS" },
+  { name: "Netlify", category: "DEVOPS" },
   { name: "Cloudflare", category: "DEVOPS" },
+  { name: "AWS", category: "DEVOPS" },
+  { name: "GCP", category: "DEVOPS" },
+  { name: "Azure", category: "DEVOPS" },
+  { name: "Docker", category: "DEVOPS" },
+  { name: "Kubernetes", category: "DEVOPS" },
+  { name: "GitHub Actions", category: "DEVOPS" },
+  { name: "GitLab CI", category: "DEVOPS" },
+  { name: "Railway", category: "DEVOPS" },
+  { name: "Render", category: "DEVOPS" },
+  { name: "Fly.io", category: "DEVOPS" },
+  { name: "Nginx", category: "DEVOPS" },
   { name: "Cloudinary", category: "DEVOPS" },
+
+  // Design / Tools
   { name: "Figma", category: "DESIGN" },
+  { name: "Storybook", category: "DESIGN" },
+  { name: "Playwright", category: "DESIGN" },
+  { name: "Cypress", category: "DESIGN" },
+  { name: "Jest", category: "DESIGN" },
+  { name: "Vitest", category: "DESIGN" },
+  { name: "ESLint", category: "DESIGN" },
+  { name: "Prettier", category: "DESIGN" },
+  { name: "Turborepo", category: "DESIGN" },
+  { name: "pnpm", category: "DESIGN" },
 ];
 
-const stackAliases: Record<string, StackSuggestion> = buildStackAliases({
-  "next": "Next.js",
-  "nextjs": "Next.js",
-  "next.js": "Next.js",
-  "react": "React",
-  "react-dom": "React",
-  "typescript": "TypeScript",
-  "ts": "TypeScript",
-  "javascript": "JavaScript",
-  "js": "JavaScript",
-  "tailwind": "Tailwind CSS",
-  "tailwindcss": "Tailwind CSS",
-  "tailwind-css": "Tailwind CSS",
-  "framer-motion": "Framer Motion",
-  "motion": "Framer Motion",
-  "remix": "Remix",
-  "vite": "Vite",
-  "vue": "Vue",
-  "svelte": "Svelte",
-  "node": "Node.js",
-  "nodejs": "Node.js",
-  "node.js": "Node.js",
-  "express": "Express",
-  "expressjs": "Express",
-  "nestjs": "NestJS",
-  "@nestjs/core": "NestJS",
-  "fastapi": "FastAPI",
-  "go": "Go",
-  "golang": "Go",
-  "python": "Python",
-  "trpc": "tRPC",
-  "@trpc/server": "tRPC",
-  "@trpc/client": "tRPC",
-  "graphql": "GraphQL",
-  "supabase": "Supabase",
-  "@supabase/supabase-js": "Supabase",
-  "@supabase/ssr": "Supabase",
-  "postgres": "Postgres",
-  "postgresql": "Postgres",
-  "pg": "Postgres",
-  "prisma": "Prisma",
-  "@prisma/client": "Prisma",
-  "drizzle": "Drizzle",
-  "drizzle-orm": "Drizzle",
-  "mongodb": "MongoDB",
-  "mongoose": "MongoDB",
-  "mysql": "MySQL",
-  "redis": "Redis",
-  "openrouter": "OpenRouter",
-  "openrouter-ai": "OpenRouter",
-  "openai": "OpenAI",
-  "anthropic": "Anthropic",
-  "langchain": "LangChain",
-  "ai": "AI SDK",
-  "ai-sdk": "AI SDK",
-  "vercel": "Vercel",
-  "@vercel/analytics": "Vercel",
-  "@vercel/speed-insights": "Vercel",
-  "docker": "Docker",
-  "github-actions": "GitHub Actions",
-  "cloudflare": "Cloudflare",
-  "cloudinary": "Cloudinary",
-  "figma": "Figma",
-});
+function buildStackOptions(techStacks: ApiTechStack[], categoryFilter: TechStackCategory | "ALL", search: string): StackOption[] {
+  const options = new Map<string, StackOption>();
 
-function buildStackAliases(extraAliases: Record<string, string>) {
-  const byName = new Map(knownStackSuggestions.map((stack) => [normalizeTechKey(stack.name), stack]));
-  const aliases: Record<string, StackSuggestion> = Object.fromEntries(byName);
-
-  for (const [alias, name] of Object.entries(extraAliases)) {
-    const suggestion = byName.get(normalizeTechKey(name));
-    if (suggestion) aliases[normalizeTechKey(alias)] = suggestion;
+  for (const preset of presetTechStacks) {
+    options.set(normalizeTechKey(preset.name), {
+      ...preset,
+      key: normalizeTechKey(preset.name),
+      source: "preset",
+    });
   }
 
-  return aliases;
-}
-
-function splitTechInput(value: string) {
-  return value
-    .split(/[,\n;|]+/)
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
-function collectTechHintsFromForm(form: FormState, githubRepoUrl: string, githubNotes: string) {
-  const freeText = [
-    form.title,
-    form.summary,
-    form.description,
-    form.problem,
-    form.solution,
-    form.repositoryUrl,
-    githubRepoUrl,
-    githubNotes,
-  ].join("\n");
-
-  return dedupeTechNames([
-    ...splitTechInput(form.quickTech),
-    ...scanKnownStacks(freeText),
-  ]);
-}
-
-function collectStackSuggestions(rawHints: string[]) {
-  const suggestions = new Map<string, StackSuggestion>();
-  const candidates = dedupeTechNames([
-    ...rawHints.flatMap((hint) => splitTechInput(hint)),
-    ...scanKnownStacks(rawHints.join("\n")),
-  ]);
-
-  for (const candidate of candidates) {
-    const suggestion = stackAliases[normalizeTechKey(candidate)];
-    if (suggestion) suggestions.set(normalizeTechKey(suggestion.name), suggestion);
+  for (const stack of techStacks) {
+    const key = normalizeTechKey(stack.name);
+    const existing = options.get(key);
+    options.set(key, {
+      name: stack.name,
+      category: (stack.category as TechStackCategory | undefined) ?? existing?.category ?? "OTHER",
+      key,
+      id: stack.id,
+      source: "saved",
+    });
   }
 
-  return Array.from(suggestions.values());
+  const query = normalizeTechKey(search);
+  return Array.from(options.values())
+    .filter((option) => categoryFilter === "ALL" || option.category === categoryFilter)
+    .filter((option) => !query || normalizeTechKey(`${option.name} ${option.category}`).includes(query))
+    .sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
 }
 
-function scanKnownStacks(text: string) {
-  const matches: string[] = [];
-  const compactText = normalizeTechKey(text);
-
-  for (const [aliasKey, suggestion] of Object.entries(stackAliases)) {
-    if (aliasKey.length < 3) continue;
-    if (compactText.includes(aliasKey)) matches.push(suggestion.name);
-  }
-
-  return matches;
+function isStackOptionSelected(option: StackOption, selectedIds: string[], techStacks: ApiTechStack[]) {
+  if (option.id && selectedIds.includes(option.id)) return true;
+  const matchingStack = findMatchingTechStack(techStacks, option.name);
+  return matchingStack ? selectedIds.includes(matchingStack.id) : false;
 }
 
 function findMatchingTechStack(techStacks: ApiTechStack[], name: string) {
@@ -666,26 +653,10 @@ function findMatchingTechStack(techStacks: ApiTechStack[], name: string) {
   return techStacks.find((tech) => normalizeTechKey(tech.name) === targetKey || normalizeTechKey(tech.slug ?? "") === targetKey);
 }
 
-function dedupeTechNames(values: string[]) {
-  const seen = new Set<string>();
-  const result: string[] = [];
-
-  for (const value of values) {
-    const trimmed = value.trim();
-    const key = normalizeTechKey(trimmed);
-    if (!trimmed || !key || seen.has(key)) continue;
-    seen.add(key);
-    result.push(trimmed);
-  }
-
-  return result;
-}
-
 function normalizeTechKey(value: string) {
   return value
     .toLowerCase()
     .trim()
     .replace(/^@/, "")
-    .replace(/[^a-z0-9+#.]+/g, "")
-    .replace(/\./g, "");
+    .replace(/[^a-z0-9+#]+/g, "");
 }
