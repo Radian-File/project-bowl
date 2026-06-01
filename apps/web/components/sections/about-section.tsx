@@ -32,7 +32,7 @@ export function AboutSection() {
               <Globe2 className="h-4 w-4 text-cyan-300" /> {profile.location}
             </span>
             <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-4 py-2">
-              <Coffee className="h-4 w-4 text-violet-300" /> Lo-fi · Synthwave · Tame Impala
+              <Coffee className="h-4 w-4 text-violet-300" /> Spotify API integration · on progress
             </span>
           </div>
         </Card>
