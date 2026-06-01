@@ -1,7 +1,12 @@
+"use client";
+
+import { useLanguage } from "@/components/i18n/language-provider";
 import { profile } from "@/lib/portfolio-data";
 import Link from "next/link";
 
 export function Footer() {
+  const { t } = useLanguage();
+
   return (
     <footer className="relative mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 pb-10 pt-4 text-sm text-slate-400 md:flex-row md:items-center md:justify-between">
       <p>© 2026 {profile.name}. All rights reserved.</p>
@@ -12,7 +17,7 @@ export function Footer() {
           </Link>
         ))}
         <span className="text-slate-600">•</span>
-        <span>Dibangun dengan React, Tailwind &amp; sedikit magic.</span>
+        <span>{t.footer}</span>
       </div>
     </footer>
   );

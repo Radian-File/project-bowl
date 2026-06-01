@@ -1,35 +1,40 @@
+"use client";
+
 import { Badge, Card, SectionLabel, buttonClasses } from "@projectbowl/ui";
 import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { profile, stats } from "@/lib/portfolio-data";
+import { useLanguage } from "@/components/i18n/language-provider";
+import { stats } from "@/lib/portfolio-data";
 
 export function HeroSection() {
+  const { t } = useLanguage();
+
   return (
     <section className="relative mx-auto grid min-h-[calc(100vh-7rem)] w-full max-w-6xl items-center gap-10 px-6 pb-20 pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:pt-20">
       <div>
-        <SectionLabel>{profile.availability}</SectionLabel>
+        <SectionLabel>{t.hero.availability}</SectionLabel>
         <h1 className="font-display text-5xl font-bold leading-[0.98] tracking-tight text-white md:text-7xl lg:text-8xl">
-          Dari ide mentah jadi produk digital yang siap launch.
+          {t.hero.title}
         </h1>
-        <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300 md:text-xl">{profile.intro}</p>
+        <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300 md:text-xl">{t.hero.intro}</p>
 
         <div className="mt-9 flex flex-wrap gap-3">
           <Link href="#projects" className={buttonClasses({ size: "lg" })}>
-            Lihat Projects <ArrowRight className="h-4 w-4" />
+            {t.hero.projects} <ArrowRight className="h-4 w-4" />
           </Link>
           <Link href="#projectbowl" className={buttonClasses({ variant: "secondary", size: "lg" })}>
-            Buka ProjectBowl
+            {t.hero.projectbowl}
           </Link>
           <Link href="/cv" className={buttonClasses({ variant: "ghost", size: "lg" })}>
-            Lihat CV <ArrowRight className="h-4 w-4" />
+            {t.hero.cv} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
         <div className="mt-12 grid max-w-2xl gap-3 sm:grid-cols-3">
-          {stats.map((stat) => (
+          {stats.map((stat, index) => (
             <Card key={stat.label} className="p-5">
               <div className="font-display text-3xl font-bold text-white">{stat.value}</div>
-              <div className="mt-1 text-sm text-slate-400">{stat.label}</div>
+              <div className="mt-1 text-sm text-slate-400">{t.hero.stats[index] ?? stat.label}</div>
             </Card>
           ))}
         </div>
@@ -41,18 +46,18 @@ export function HeroSection() {
           <div className="mb-6 flex items-center justify-between gap-4">
             <div>
               <p className="text-sm text-slate-500">projectbowl.app</p>
-              <h2 className="font-display text-2xl font-semibold text-white">Workspace Portfolio</h2>
+              <h2 className="font-display text-2xl font-semibold text-white">{t.hero.workspace}</h2>
             </div>
-            <Badge tone="lime">Online</Badge>
+            <Badge tone="lime">{t.hero.online}</Badge>
           </div>
 
           <div className="grid gap-3 md:grid-cols-[0.8fr_1.2fr]">
             <div className="space-y-3">
-              {['Dashboard', 'Projects', 'AI Studio', 'Publish'].map((item, index) => (
+              {["Dashboard", "Projects", "AI Studio", "Publish"].map((item, index) => (
                 <div
                   key={item}
                   className={`rounded-2xl border px-4 py-3 text-sm ${
-                    index === 1 ? 'border-cyan-300/30 bg-cyan-300/10 text-cyan-100' : 'border-white/10 bg-white/[0.04] text-slate-300'
+                    index === 1 ? "border-cyan-300/30 bg-cyan-300/10 text-cyan-100" : "border-white/10 bg-white/[0.04] text-slate-300"
                   }`}
                 >
                   {item}
@@ -62,13 +67,13 @@ export function HeroSection() {
             <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-4">
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">AI suggestion</p>
-                  <h3 className="mt-1 font-display text-xl font-semibold text-white">Card siap publish</h3>
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{t.hero.aiSuggestion}</p>
+                  <h3 className="mt-1 font-display text-xl font-semibold text-white">{t.hero.readyCard}</h3>
                 </div>
                 <Sparkles className="h-5 w-5 text-cyan-300" />
               </div>
               <div className="space-y-3">
-                {['ProjectBowl', 'Lumen Analytics', 'Drafty'].map((item) => (
+                {["ProjectBowl", "Lumen Analytics", "Drafty"].map((item) => (
                   <div key={item} className="rounded-2xl border border-white/10 bg-[#101624] p-4">
                     <div className="mb-2 flex items-center justify-between">
                       <span className="font-medium text-white">{item}</span>
