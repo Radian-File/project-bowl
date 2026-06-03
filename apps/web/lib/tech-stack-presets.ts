@@ -158,6 +158,23 @@ export function buildStackOptions(techStacks: ApiTechStack[], categoryFilter: Te
     .sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
 }
 
+export function suggestStackOptionsFromHints(hints: string[], techStacks: ApiTechStack[]) {
+  const options = buildStackOptions(techStacks, "ALL", "");
+  const optionsByKey = new Map(options.map((option) => [normalizeTechKey(option.name), option]));
+  const suggestions = new Map<string, StackOption>();
+
+  for (const hint of hints) {
+    const key = normalizeTechKey(hint);
+    if (!key) continue;
+
+    const canonicalName = stackHintAliases[key] ?? hint;
+    const option = optionsByKey.get(normalizeTechKey(canonicalName));
+    if (option) suggestions.set(normalizeTechKey(option.name), option);
+  }
+
+  return Array.from(suggestions.values());
+}
+
 export function isStackOptionSelected(option: StackOption, selectedIds: string[], techStacks: ApiTechStack[]) {
   if (option.id && selectedIds.includes(option.id)) return true;
   const matchingStack = findMatchingTechStack(techStacks, option.name);
@@ -168,6 +185,136 @@ export function findMatchingTechStack(techStacks: ApiTechStack[], name: string) 
   const targetKey = normalizeTechKey(name);
   return techStacks.find((tech) => normalizeTechKey(tech.name) === targetKey || normalizeTechKey(tech.slug ?? "") === targetKey);
 }
+
+const stackHintAliases: Record<string, string> = Object.fromEntries(
+  Object.entries({
+    next: "Next.js",
+    nextjs: "Next.js",
+    "next.js": "Next.js",
+    react: "React",
+    "react-dom": "React",
+    typescript: "TypeScript",
+    ts: "TypeScript",
+    javascript: "JavaScript",
+    js: "JavaScript",
+    tailwind: "Tailwind CSS",
+    tailwindcss: "Tailwind CSS",
+    "@tailwindcss/postcss": "Tailwind CSS",
+    "framer-motion": "Framer Motion",
+    motion: "Motion",
+    vue: "Vue",
+    nuxt: "Nuxt",
+    svelte: "Svelte",
+    sveltekit: "SvelteKit",
+    angular: "Angular",
+    astro: "Astro",
+    remix: "Remix",
+    vite: "Vite",
+    zustand: "Zustand",
+    redux: "Redux",
+    "@reduxjs/toolkit": "Redux",
+    "shadcn/ui": "shadcn/ui",
+    "@radix-ui/react-dialog": "Radix UI",
+    "@radix-ui/react-dropdown-menu": "Radix UI",
+    node: "Node.js",
+    nodejs: "Node.js",
+    "node.js": "Node.js",
+    express: "Express",
+    nestjs: "NestJS",
+    "@nestjs/core": "NestJS",
+    hono: "Hono",
+    fastify: "Fastify",
+    bun: "Bun",
+    deno: "Deno",
+    python: "Python",
+    fastapi: "FastAPI",
+    django: "Django",
+    flask: "Flask",
+    go: "Go",
+    golang: "Go",
+    gin: "Gin",
+    java: "Java",
+    "spring-boot": "Spring Boot",
+    php: "PHP",
+    laravel: "Laravel",
+    graphql: "GraphQL",
+    trpc: "tRPC",
+    "@trpc/server": "tRPC",
+    "@trpc/client": "tRPC",
+    supabase: "Supabase",
+    "@supabase/supabase-js": "Supabase",
+    "@supabase/ssr": "Supabase",
+    postgresql: "PostgreSQL",
+    postgres: "PostgreSQL",
+    pg: "PostgreSQL",
+    mysql: "MySQL",
+    sqlite: "SQLite",
+    mongodb: "MongoDB",
+    mongoose: "MongoDB",
+    redis: "Redis",
+    prisma: "Prisma",
+    "@prisma/client": "Prisma",
+    drizzle: "Drizzle",
+    "drizzle-orm": "Drizzle",
+    neon: "Neon",
+    "@neondatabase/serverless": "Neon",
+    firebase: "Firebase",
+    firestore: "Firestore",
+    clickhouse: "ClickHouse",
+    "@clickhouse/client": "ClickHouse",
+    pgvector: "pgvector",
+    openrouter: "OpenRouter",
+    openai: "OpenAI",
+    "@anthropic-ai/sdk": "Anthropic",
+    anthropic: "Anthropic",
+    claude: "Claude",
+    gemini: "Gemini",
+    "@google/generative-ai": "Gemini",
+    ai: "AI SDK",
+    "ai-sdk": "AI SDK",
+    "@ai-sdk/openai": "AI SDK",
+    "@ai-sdk/anthropic": "AI SDK",
+    "@ai-sdk/google": "AI SDK",
+    langchain: "LangChain",
+    "@langchain/core": "LangChain",
+    llamaindex: "LlamaIndex",
+    ollama: "Ollama",
+    "hugging-face": "Hugging Face",
+    huggingface: "Hugging Face",
+    pinecone: "Pinecone",
+    weaviate: "Weaviate",
+    vercel: "Vercel",
+    "@vercel/analytics": "Vercel",
+    "@vercel/speed-insights": "Vercel",
+    netlify: "Netlify",
+    cloudflare: "Cloudflare",
+    aws: "AWS",
+    gcp: "GCP",
+    azure: "Azure",
+    docker: "Docker",
+    kubernetes: "Kubernetes",
+    githubactions: "GitHub Actions",
+    "github-actions": "GitHub Actions",
+    railway: "Railway",
+    render: "Render",
+    flyio: "Fly.io",
+    nginx: "Nginx",
+    cloudinary: "Cloudinary",
+    sentry: "Sentry",
+    "@sentry/nextjs": "Sentry",
+    figma: "Figma",
+    storybook: "Storybook",
+    playwright: "Playwright",
+    cypress: "Cypress",
+    jest: "Jest",
+    vitest: "Vitest",
+    eslint: "ESLint",
+    prettier: "Prettier",
+    turborepo: "Turborepo",
+    turbo: "Turborepo",
+    pnpm: "pnpm",
+  }).map(([key, value]) => [normalizeTechKey(key), value]),
+);
 
 export function normalizeTechKey(value: string) {
   return value

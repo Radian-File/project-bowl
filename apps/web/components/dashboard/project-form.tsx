@@ -18,7 +18,7 @@ import {
   updateProject,
 } from "@/lib/api";
 import { getCoverImage, getTechIds } from "@/lib/project-view";
-import { buildStackOptions, findMatchingTechStack, isStackOptionSelected, techStackCategories } from "@/lib/tech-stack-presets";
+import { buildStackOptions, findMatchingTechStack, isStackOptionSelected, suggestStackOptionsFromHints, techStackCategories } from "@/lib/tech-stack-presets";
 
 const statuses: ProjectStatus[] = ["IDEA", "PLANNING", "IN_PROGRESS", "SHIPPED", "ARCHIVED"];
 const visibilities: ProjectVisibility[] = ["PRIVATE", "PUBLIC", "UNLISTED"];
@@ -98,6 +98,53 @@ export function ProjectForm({ mode, initialProject }: { mode: "create" | "edit";
     }));
   }
 
+  async function applyGitHubStackHints(rawHints: string[]) {
+    setTechError(null);
+    setTechMessage(null);
+
+    const suggestions = suggestStackOptionsFromHints(rawHints, techStacks);
+    if (suggestions.length === 0) return { selected: [] as string[], created: [] as string[] };
+
+    let nextTechStacks = [...techStacks];
+    const selectedIds: string[] = [];
+    const selectedNames: string[] = [];
+    const createdNames: string[] = [];
+
+    for (const suggestion of suggestions) {
+      let stack = suggestion.id ? nextTechStacks.find((item) => item.id === suggestion.id) : findMatchingTechStack(nextTechStacks, suggestion.name);
+
+      if (!stack) {
+        try {
+          stack = await createTechStack({ name: suggestion.name, category: suggestion.category });
+          nextTechStacks = [...nextTechStacks, stack];
+          createdNames.push(stack.name);
+        } catch (err) {
+          const latestStacks = await listTechStacks().catch(() => nextTechStacks);
+          nextTechStacks = latestStacks;
+          stack = findMatchingTechStack(nextTechStacks, suggestion.name);
+          if (!stack) throw err;
+        }
+      }
+
+      if (!selectedIds.includes(stack.id)) {
+        selectedIds.push(stack.id);
+        selectedNames.push(stack.name);
+      }
+    }
+
+    setTechStacks(nextTechStacks.sort((a, b) => a.name.localeCompare(b.name)));
+    setForm((current) => ({
+      ...current,
+      techStackIds: Array.from(new Set([...current.techStackIds, ...selectedIds])),
+    }));
+
+    if (selectedNames.length > 0) {
+      setTechMessage(`GitHub stack: ${selectedNames.length} stack otomatis dipilih${createdNames.length ? `, ${createdNames.length} stack baru dibuat` : ""}.`);
+    }
+
+    return { selected: selectedNames, created: createdNames };
+  }
+
   async function selectStackOption(optionKey: string) {
     const option = stackOptions.find((item) => item.key === optionKey);
     if (!option) return;
@@ -154,7 +201,7 @@ export function ProjectForm({ mode, initialProject }: { mode: "create" | "edit";
         throw new Error("AI belum mengembalikan structured fields. Coba tambahkan notes yang lebih jelas atau retry.");
       }
 
-      const github = result.github as { htmlUrl?: string } | undefined;
+      const github = result.github as { htmlUrl?: string; languages?: string[]; topics?: string[]; techHints?: string[] } | undefined;
 
       setForm((current) => ({
         ...current,
@@ -167,7 +214,25 @@ export function ProjectForm({ mode, initialProject }: { mode: "create" | "edit";
         repositoryUrl: github?.htmlUrl ?? githubRepoUrl.trim(),
       }));
 
-      setGithubMessage("Draft dari GitHub berhasil dibuat. Pilih tech stack manual dari dropdown sebelum save.");
+      let stackMessage = "";
+      const stackHints = [
+        ...(github?.techHints ?? []),
+        ...(github?.languages ?? []),
+        ...(github?.topics ?? []),
+      ];
+
+      if (stackHints.length > 0) {
+        try {
+          const applied = await applyGitHubStackHints(stackHints);
+          if (applied.selected.length > 0) {
+            stackMessage = ` ${applied.selected.length} tech stack juga otomatis dipilih.`;
+          }
+        } catch (stackError) {
+          setTechError(stackError instanceof Error ? `Draft berhasil, tapi auto-fill stack gagal: ${stackError.message}` : "Draft berhasil, tapi auto-fill stack gagal.");
+        }
+      }
+
+      setGithubMessage(`Draft dari GitHub berhasil dibuat.${stackMessage} Review dulu field-nya sebelum save.`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Generate with GitHub gagal.");
     } finally {
