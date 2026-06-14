@@ -26,7 +26,7 @@ export const profile = {
     "Hi, saya Achmad Ricky Radhiansyah Putra — software engineering enthusiast yang suka bikin interface clean, backend yang pragmatic, dan workflow produk yang AI-ready.",
   availability: "Available untuk fullstack opportunities",
   socials: [
-    { label: "GitHub", href: "https://github.com/rickyrp", handle: "@rickyrp" },
+    { label: "GitHub", href: "https://github.com/Radian-File", handle: "@Radian-File" },
     { label: "LinkedIn", href: "https://linkedin.com/in/rickyrp", handle: "/rickyrp" },
     { label: "X", href: "https://x.com/rickyrp", handle: "@rickyrp" },
   ],

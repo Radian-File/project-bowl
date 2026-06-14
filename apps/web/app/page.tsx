@@ -4,6 +4,7 @@ import { AboutSection } from "@/components/sections/about-section";
 import { AiFeaturesSection } from "@/components/sections/ai-features-section";
 import { ContactSection } from "@/components/sections/contact-section";
 import { FeaturedProjectsSection } from "@/components/sections/featured-projects-section";
+import { GithubSection } from "@/components/sections/github-section";
 import { HeroSection } from "@/components/sections/hero-section";
 import { ProjectBowlSection } from "@/components/sections/projectbowl-section";
 import { TechStackSection } from "@/components/sections/tech-stack-section";
@@ -21,6 +22,7 @@ export default function HomePage() {
         <ProjectBowlSection />
         <AiFeaturesSection />
         <TechStackSection />
+        <GithubSection />
         <ContactSection />
         <Footer />
       </div>

@@ -25,7 +25,7 @@ export function ContactSection() {
       <Reveal className="overflow-hidden rounded-xl border border-ink-border">
         <div className="grid gap-px bg-ink-border lg:grid-cols-[1.1fr_0.9fr]">
           <div className="bg-ink-surface p-8 md:p-10">
-            <PortfolioSectionLabel index="06">{t.contact.label}</PortfolioSectionLabel>
+            <PortfolioSectionLabel index="07">{t.contact.label}</PortfolioSectionLabel>
             <h2 className="font-editorial text-4xl font-bold tracking-tight text-ink-text md:text-6xl">{t.contact.title}</h2>
             <p className="mt-4 text-lg leading-8 text-ink-muted">{t.contact.body}</p>
 
