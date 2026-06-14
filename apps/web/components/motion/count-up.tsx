@@ -20,21 +20,28 @@ export function CountUp({ value, className = "", durationMs = 1200 }: CountUpPro
   const reduceMotion = usePrefersReducedMotion();
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
-  const match = value.match(/(\d+)/);
-  const target = match ? parseInt(match[1], 10) : null;
-  const [display, setDisplay] = useState(target !== null && !reduceMotion ? value.replace(match![1], "0") : value);
+
+  // Derive the numeric portion as a stable primitive string. Using the regex
+  // match array directly as an effect dependency caused a new object every
+  // render, restarting the animation in a loop (the 0↔1 flicker bug).
+  const numStr = value.match(/\d+/)?.[0] ?? null;
+  const target = numStr !== null ? parseInt(numStr, 10) : null;
+
+  const [display, setDisplay] = useState(
+    target !== null && !reduceMotion ? value.replace(numStr!, "0") : value,
+  );
 
   useEffect(() => {
-    if (reduceMotion || target === null || !inView) return;
+    if (reduceMotion || numStr === null || target === null || !inView) return;
     const controls = animate(0, target, {
       duration: durationMs / 1000,
       ease: [0.22, 1, 0.36, 1],
       onUpdate: (latest) => {
-        setDisplay(value.replace(match![1], String(Math.round(latest))));
+        setDisplay(value.replace(numStr, String(Math.round(latest))));
       },
     });
     return () => controls.stop();
-  }, [inView, reduceMotion, target, value, durationMs, match]);
+  }, [inView, reduceMotion, target, value, durationMs, numStr]);
 
   return (
     <span ref={ref} className={className}>
