@@ -7,7 +7,7 @@ export const copy = {
     nav: { about: "Tentang", projects: "Projects", projectbowl: "ProjectBowl", stack: "Stack", contact: "Kontak", cta: "Let's talk" },
     hero: {
       availability: "Available untuk fullstack opportunities",
-      title: "Dari ide mentah jadi produk digital yang siap launch.",
+      title: "Rancang. Bangun. Kirim.",
       intro: "Hi, saya Achmad Ricky Radhiansyah Putra — software engineering enthusiast yang suka bikin interface clean, backend yang pragmatic, dan workflow produk yang AI-ready.",
       projects: "Lihat Projects",
       projectbowl: "Buka ProjectBowl",
@@ -78,7 +78,7 @@ export const copy = {
     nav: { about: "About", projects: "Projects", projectbowl: "ProjectBowl", stack: "Stack", contact: "Contact", cta: "Let's talk" },
     hero: {
       availability: "Available for fullstack opportunities",
-      title: "From rough ideas to digital products ready to launch.",
+      title: "Design. Build. Ship.",
       intro: "Hi, I’m Achmad Ricky Radhiansyah Putra — a software engineering enthusiast who loves clean interfaces, pragmatic backends, and AI-ready product workflows.",
       projects: "View Projects",
       projectbowl: "Open ProjectBowl",

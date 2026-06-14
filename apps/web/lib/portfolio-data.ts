@@ -33,7 +33,7 @@ export const profile = {
 };
 
 export const stats = [
-  { value: "2++", label: "Tahun ngoding" },
+  { value: "2+", label: "Tahun ngoding" },
   { value: "20+", label: "Project shipped" },
   { value: "12+", label: "Tools favorit" },
 ];

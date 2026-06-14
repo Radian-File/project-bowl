@@ -9,13 +9,13 @@ export function LanguageToggle() {
   const { locale, setLocale } = useLanguage();
 
   return (
-    <div className="inline-flex rounded-full border border-white/10 bg-white/[0.06] p-1 text-xs font-semibold text-slate-400">
+    <div className="inline-flex rounded-md border border-ink-border bg-ink-surface p-0.5 font-mono text-xs text-ink-muted">
       {locales.map((item) => (
         <button
           key={item}
           type="button"
           onClick={() => setLocale(item)}
-          className={`rounded-full px-2.5 py-1 transition ${locale === item ? "bg-cyan-300/15 text-cyan-100" : "hover:text-white"}`}
+          className={`rounded px-2 py-1 transition-colors ${locale === item ? "bg-ink-text text-ink-bg" : "hover:text-ink-text"}`}
           aria-pressed={locale === item}
         >
           {item.toUpperCase()}

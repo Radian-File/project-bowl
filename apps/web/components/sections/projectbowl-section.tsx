@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge, Card, SectionLabel, buttonClasses } from "@projectbowl/ui";
-import { ArrowRight, Play, Sparkles } from "lucide-react";
+import { PortfolioBadge, PortfolioSectionLabel, portfolioButtonClasses } from "@/components/portfolio-ui";
+import { ArrowRight, Play } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/components/i18n/language-provider";
 
@@ -9,70 +9,40 @@ export function ProjectBowlSection() {
   const { t } = useLanguage();
 
   return (
-    <section id="projectbowl" className="mx-auto w-full max-w-6xl px-6 py-20">
-      <Card className="relative overflow-hidden p-6 md:p-10" hover>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,rgba(124,58,237,0.32),transparent_35%),radial-gradient(circle_at_85%_25%,rgba(6,182,212,0.22),transparent_35%)]" />
-        <div className="relative grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div>
-            <SectionLabel>{t.projectbowl.label}</SectionLabel>
-            <h2 className="font-display text-4xl font-bold tracking-tight text-white md:text-6xl">{t.projectbowl.title}</h2>
-            <p className="mt-5 text-lg leading-8 text-slate-300">{t.projectbowl.body}</p>
-            <div className="mt-7 grid gap-3">
-              {t.projectbowl.benefits.map((benefit) => (
-                <div key={benefit} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/20 p-4 text-slate-200">
-                  <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300" />
-                  <span>{benefit}</span>
-                </div>
-              ))}
-            </div>
+    <section id="projectbowl" className="mx-auto w-full max-w-5xl px-6 py-24">
+      <div className="overflow-hidden rounded-xl border border-ink-border bg-ink-surface">
+        <div className="grid gap-px bg-ink-border lg:grid-cols-2">
+          <div className="bg-ink-surface p-8 md:p-10">
+            <PortfolioSectionLabel index="03">{t.projectbowl.label}</PortfolioSectionLabel>
+            <h2 className="font-editorial text-4xl font-bold tracking-tight text-ink-text md:text-5xl">{t.projectbowl.title}</h2>
+            <p className="mt-5 text-lg leading-8 text-ink-muted">{t.projectbowl.body}</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/" className={buttonClasses()}>
+              <Link href="/" className={portfolioButtonClasses()}>
                 {t.projectbowl.open} <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link href="#ai" className={buttonClasses({ variant: "secondary" })}>
+              <Link href="#ai" className={portfolioButtonClasses({ variant: "secondary" })}>
                 <Play className="h-4 w-4" /> {t.projectbowl.demo}
               </Link>
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-white/10 bg-[#080A0F]/70 p-4 shadow-[0_24px_90px_rgba(0,0,0,0.35)]">
-            <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4">
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-500">projectbowl.app</p>
-                  <h3 className="font-display text-xl font-semibold text-white">{t.projectbowl.progress}</h3>
-                </div>
-                <Badge tone="purple">Generate</Badge>
-              </div>
-              <div className="grid gap-3 md:grid-cols-3">
-                {[
-                  ["Backlog", "3"],
-                  ["In progress", "2"],
-                  ["Shipped", "4"],
-                ].map(([column, count]) => (
-                  <div key={column} className="rounded-2xl border border-white/10 bg-black/25 p-3">
-                    <div className="mb-3 flex items-center justify-between text-sm">
-                      <span className="text-slate-300">{column}</span>
-                      <span className="text-slate-500">({count})</span>
-                    </div>
-                    <div className="space-y-3">
-                      {["AI-ready", "Draft", "Review"].map((label) => (
-                        <div key={`${column}-${label}`} className="rounded-xl border border-white/10 bg-white/[0.06] p-3">
-                          <Badge tone={label === "AI-ready" ? "cyan" : "slate"}>{label}</Badge>
-                          <div className="mt-3 h-2 rounded-full bg-white/10" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-4 text-sm text-cyan-100">
-                {t.projectbowl.suggestion}
-              </div>
+          <div className="bg-ink-surface p-8 md:p-10">
+            <p className="font-mono text-xs uppercase tracking-[0.18em] text-ink-faint">{t.projectbowl.progress}</p>
+            <ul className="mt-6 flex flex-col">
+              {t.projectbowl.benefits.map((benefit, index) => (
+                <li key={benefit} className="flex items-baseline gap-4 border-t border-ink-border py-4 first:border-t-0">
+                  <span className="font-mono text-xs text-ink-accent">{String(index + 1).padStart(2, "0")}</span>
+                  <span className="leading-7 text-ink-text">{benefit}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6 flex items-start gap-3 rounded-md border border-ink-border bg-ink-bg p-4">
+              <PortfolioBadge tone="accent">AI</PortfolioBadge>
+              <span className="text-sm leading-6 text-ink-muted">{t.projectbowl.suggestion}</span>
             </div>
           </div>
         </div>
-      </Card>
+      </div>
     </section>
   );
 }

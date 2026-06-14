@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge, Card, SectionLabel, buttonClasses } from "@projectbowl/ui";
-import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
+import { PortfolioBadge, PortfolioSectionLabel, portfolioButtonClasses } from "@/components/portfolio-ui";
+import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/components/i18n/language-provider";
 import { profile } from "@/lib/portfolio-data";
@@ -13,53 +13,50 @@ const whatsappUrl = "https://wa.me/6281295248513";
 export function ContactSection() {
   const { t } = useLanguage();
 
-  return (
-    <section id="contact" className="mx-auto w-full max-w-6xl px-6 py-20">
-      <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <Card className="p-6 md:p-8" hover>
-          <SectionLabel>{t.contact.label}</SectionLabel>
-          <h2 className="font-display text-4xl font-bold tracking-tight text-white md:text-6xl">{t.contact.title}</h2>
-          <p className="mt-4 text-lg leading-8 text-slate-400">{t.contact.body}</p>
+  const channels = [
+    { label: "Email", value: profile.email, href: `mailto:${profile.email}`, help: t.contact.emailHelp },
+    { label: t.contact.phoneTitle, value: phoneNumber, href: whatsappUrl, help: t.contact.phoneHelp },
+    { label: t.contact.locationTitle, value: t.contact.location, href: null, help: t.contact.remote },
+  ];
 
-          <div className="mt-8 rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5">
-            <p className="text-sm leading-6 text-slate-400">{t.contact.ctaBody}</p>
+  return (
+    <section id="contact" className="mx-auto w-full max-w-5xl px-6 py-24">
+      <div className="overflow-hidden rounded-xl border border-ink-border">
+        <div className="grid gap-px bg-ink-border lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="bg-ink-surface p-8 md:p-10">
+            <PortfolioSectionLabel index="06">{t.contact.label}</PortfolioSectionLabel>
+            <h2 className="font-editorial text-4xl font-bold tracking-tight text-ink-text md:text-6xl">{t.contact.title}</h2>
+            <p className="mt-4 text-lg leading-8 text-ink-muted">{t.contact.body}</p>
+
+            <p className="mt-8 text-sm leading-6 text-ink-muted">{t.contact.ctaBody}</p>
             <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Link href={serviceUrl} target="_blank" rel="noreferrer" className={buttonClasses({ className: "justify-center" })}>
+              <Link href={serviceUrl} target="_blank" rel="noreferrer" className={portfolioButtonClasses({ className: "justify-center" })}>
                 {t.contact.service} <ArrowUpRight className="h-4 w-4" />
               </Link>
-              <Link href={whatsappUrl} target="_blank" rel="noreferrer" className={buttonClasses({ variant: "secondary", className: "justify-center" })}>
+              <Link href={whatsappUrl} target="_blank" rel="noreferrer" className={portfolioButtonClasses({ variant: "secondary", className: "justify-center" })}>
                 {t.contact.whatsapp}
               </Link>
             </div>
           </div>
-        </Card>
 
-        <div className="grid gap-4">
-          <Card className="p-6" hover>
-            <Mail className="h-5 w-5 text-cyan-300" />
-            <h3 className="mt-4 font-display text-2xl font-semibold text-white">Email</h3>
-            <Link href={`mailto:${profile.email}`} className="mt-2 block text-cyan-100 hover:text-white">
-              {profile.email}
-            </Link>
-            <p className="mt-2 text-sm text-slate-500">{t.contact.emailHelp}</p>
-          </Card>
-          <Card className="p-6" hover>
-            <Phone className="h-5 w-5 text-violet-300" />
-            <h3 className="mt-4 font-display text-2xl font-semibold text-white">{t.contact.phoneTitle}</h3>
-            <Link href={whatsappUrl} target="_blank" rel="noreferrer" className="mt-2 block text-cyan-100 hover:text-white">
-              {phoneNumber}
-            </Link>
-            <p className="mt-2 text-sm text-slate-500">{t.contact.phoneHelp}</p>
-          </Card>
-          <Card className="p-6" hover>
-            <MapPin className="h-5 w-5 text-lime-300" />
-            <h3 className="mt-4 font-display text-2xl font-semibold text-white">{t.contact.locationTitle}</h3>
-            <p className="mt-2 text-slate-300">{t.contact.location}</p>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Badge tone="lime">Online now</Badge>
-              <span className="text-sm text-slate-500">{t.contact.remote}</span>
-            </div>
-          </Card>
+          <div className="grid gap-px bg-ink-border">
+            {channels.map((channel) => (
+              <div key={channel.label} className="bg-ink-surface p-7">
+                <p className="font-mono text-xs uppercase tracking-[0.18em] text-ink-faint">{channel.label}</p>
+                {channel.href ? (
+                  <Link href={channel.href} target={channel.href.startsWith("http") ? "_blank" : undefined} rel="noreferrer" className="mt-2 block text-ink-text transition-colors hover:text-ink-accent">
+                    {channel.value}
+                  </Link>
+                ) : (
+                  <p className="mt-2 text-ink-text">{channel.value}</p>
+                )}
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  {channel.label === t.contact.locationTitle ? <PortfolioBadge tone="accent">Online</PortfolioBadge> : null}
+                  <span className="text-xs text-ink-faint">{channel.help}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

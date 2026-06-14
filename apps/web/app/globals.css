@@ -44,6 +44,6 @@ select option:disabled {
 }
 
 ::selection {
-  background: rgba(124, 58, 237, 0.45);
+  background: rgba(212, 242, 90, 0.28);
   color: #ffffff;
 }
