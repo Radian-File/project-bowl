@@ -1,6 +1,7 @@
 "use client";
 
 import { PortfolioBadge, PortfolioSectionLabel, portfolioButtonClasses } from "@/components/portfolio-ui";
+import { Reveal } from "@/components/motion";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/components/i18n/language-provider";
@@ -21,7 +22,7 @@ export function ContactSection() {
 
   return (
     <section id="contact" className="mx-auto w-full max-w-5xl px-6 py-24">
-      <div className="overflow-hidden rounded-xl border border-ink-border">
+      <Reveal className="overflow-hidden rounded-xl border border-ink-border">
         <div className="grid gap-px bg-ink-border lg:grid-cols-[1.1fr_0.9fr]">
           <div className="bg-ink-surface p-8 md:p-10">
             <PortfolioSectionLabel index="06">{t.contact.label}</PortfolioSectionLabel>
@@ -58,7 +59,7 @@ export function ContactSection() {
             ))}
           </div>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

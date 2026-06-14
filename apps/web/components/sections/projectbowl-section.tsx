@@ -1,6 +1,7 @@
 "use client";
 
 import { PortfolioBadge, PortfolioSectionLabel, portfolioButtonClasses } from "@/components/portfolio-ui";
+import { Reveal } from "@/components/motion";
 import { ArrowRight, Play } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/components/i18n/language-provider";
@@ -10,7 +11,7 @@ export function ProjectBowlSection() {
 
   return (
     <section id="projectbowl" className="mx-auto w-full max-w-5xl px-6 py-24">
-      <div className="overflow-hidden rounded-xl border border-ink-border bg-ink-surface">
+      <Reveal className="overflow-hidden rounded-xl border border-ink-border bg-ink-surface">
         <div className="grid gap-px bg-ink-border lg:grid-cols-2">
           <div className="bg-ink-surface p-8 md:p-10">
             <PortfolioSectionLabel index="03">{t.projectbowl.label}</PortfolioSectionLabel>
@@ -42,7 +43,7 @@ export function ProjectBowlSection() {
             </div>
           </div>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }
