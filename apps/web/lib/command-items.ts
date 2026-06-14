@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { ArrowUpRight, Copy, FileText, FolderGit2, Github, Home, Languages, Linkedin, Mail, Twitter } from "lucide-react";
+import { ArrowUpRight, Copy, FileText, FolderGit2, Github, Home, Languages, Linkedin, Mail } from "lucide-react";
 import { profile, projects } from "@/lib/portfolio-data";
 
 export type CommandGroup = "Navigation" | "Actions" | "Projects";
@@ -26,7 +26,6 @@ export function buildCommandItems({ navigate, copyEmail, openExternal, toggleLan
   const socialIcon: Record<string, LucideIcon> = {
     GitHub: Github,
     LinkedIn: Linkedin,
-    X: Twitter,
   };
 
   return [

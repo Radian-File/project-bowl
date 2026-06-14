@@ -27,8 +27,7 @@ export const profile = {
   availability: "Available untuk fullstack opportunities",
   socials: [
     { label: "GitHub", href: "https://github.com/Radian-File", handle: "@Radian-File" },
-    { label: "LinkedIn", href: "https://linkedin.com/in/rickyrp", handle: "/rickyrp" },
-    { label: "X", href: "https://x.com/rickyrp", handle: "@rickyrp" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/achmad-putra-934a4b313/", handle: "/achmad-putra" },
   ],
 };
 
