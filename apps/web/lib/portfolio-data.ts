@@ -37,58 +37,81 @@ export const stats = [
   { value: "12+", label: "Tools favorit" },
 ];
 
+export const featuredProjectSlugs = [
+  "rrs-project-marketplace-portofolio-freelance",
+  "projectbowl-cms-portofolio-developer-ai-dashboard",
+  "fintrack-pengelola-keuangan-whatsapp-ai",
+  "rrs-pay-sistem-payroll-desktop-wpf-sqlite",
+];
+
 export const projects: Project[] = [
   {
-    slug: "projectbowl",
-    title: "ProjectBowl",
+    slug: "rrs-project-marketplace-portofolio-freelance",
+    title: "RRS Project",
     badge: "Flagship",
-    url: "projectbowl.app",
-    summary: "AI-powered portfolio CMS untuk developer yang mau ngatur project, bikin copy, dan publish karya dengan lebih smooth.",
+    url: "rrs-porto.vercel.app",
+    summary: "Marketplace portofolio freelance full-stack: portfolio publik, katalog layanan, order klien, dan dashboard owner.",
     description:
-      "ProjectBowl bantu developer mengubah ide, repo, dan catatan project jadi portfolio story yang rapi, lengkap dengan dashboard, AI draft, dan workflow publish yang lebih sat-set.",
-    impact: ["Dashboard project + portfolio publishing dalam satu workspace", "AI generate slug, summary, description, problem, dan solution", "Data project siap dipakai untuk portfolio public"],
-    tech: ["Next.js", "Supabase", "OpenRouter", "Vercel"],
+      "Marketplace freelance production-oriented dengan portfolio publik, service catalog, client ordering, dan owner dashboard. Dibangun pakai Next.js, TypeScript, PostgreSQL, Prisma, dan Supabase Storage.",
+    impact: [
+      "8+ modul: auth 2 role, order management, Midtrans payment gateway",
+      "File delivery dengan signed URLs, messaging, invoice generation",
+      "Business analytics dashboard untuk owner",
+    ],
+    tech: ["Next.js", "TypeScript", "PostgreSQL", "Prisma", "Supabase", "Midtrans"],
+    status: "Shipped",
+    year: "2025",
+  },
+  {
+    slug: "projectbowl-cms-portofolio-developer-ai-dashboard",
+    title: "ProjectBowl",
+    badge: "AI",
+    url: "projectbowl.app",
+    summary: "CMS portofolio developer berbasis AI dengan dashboard manajemen proyek dalam satu monorepo.",
+    description:
+      "Monorepo CMS dan project management dashboard pakai Next.js fullstack, TypeScript, Supabase Auth, PostgreSQL, dan Turborepo dengan shared packages architecture.",
+    impact: [
+      "OpenRouter AI untuk generate description, README, dan case study",
+      "15+ internal REST API routes: projects, tasks, milestones, tech stacks, activity logs",
+      "Shared packages architecture lewat Turborepo monorepo",
+    ],
+    tech: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "Turborepo", "OpenRouter"],
+    status: "In progress",
+    year: "2025",
+  },
+  {
+    slug: "fintrack-pengelola-keuangan-whatsapp-ai",
+    title: "FinTrack",
+    badge: "AI",
+    url: "github.com/Radian-File",
+    summary: "Personal finance tracker Android berbasis AI yang parse bahasa natural Indonesia jadi transaksi terstruktur.",
+    description:
+      "Cross-platform finance tracker dengan backend Express.js dan Android app Kotlin/Jetpack Compose. Integrasi OpenRouter + DeepSeek untuk parsing natural language Indonesia ke transaction records.",
+    impact: [
+      "11 fase: transaction CRUD, budget management dengan usage tracking",
+      "AI monthly insights + JWT authentication",
+      "WhatsApp Cloud API webhook integration",
+    ],
+    tech: ["Express.js", "Kotlin", "Jetpack Compose", "OpenRouter", "DeepSeek"],
+    status: "Shipped",
+    year: "2025",
+  },
+  {
+    slug: "rrs-pay-sistem-payroll-desktop-wpf-sqlite",
+    title: "RRS Pay",
+    badge: "Desktop",
+    url: "github.com/Radian-File",
+    summary: "Sistem payroll desktop WPF dengan arsitektur local-first: employee, attendance, payroll runs, dan audit logging.",
+    description:
+      "WPF desktop payroll MVP di .NET 10 dengan SQLite. Mencakup manajemen employee/department/position, attendance, payroll runs, dan audit logging dengan CSV export.",
+    impact: [
+      "Local-first data architecture dengan backup/restore utilities",
+      "QuestPDF payslip generation",
+      "ClosedXML spreadsheet export untuk payroll reporting",
+    ],
+    tech: [".NET", "WPF", "SQLite", "QuestPDF", "ClosedXML"],
     status: "In progress",
     year: "2026",
-  },
-  {
-    slug: "lumen-analytics",
-    title: "Lumen Analytics",
-    badge: "SaaS",
-    url: "lumen-analytics.app",
-    summary: "Dashboard analytics privacy-first untuk founder yang butuh insight cepat tanpa tracking yang ribet.",
-    description:
-      "Lumen Analytics dirancang sebagai analytics workspace yang ringan, realtime, dan mudah dibaca — cocok untuk validasi produk tanpa tenggelam di reporting yang terlalu noisy.",
-    impact: ["Mockup realtime event stream", "Pattern funnel dan retention dashboard", "Eksplorasi data model yang privacy-first"],
-    tech: ["Remix", "Postgres", "ClickHouse", "tRPC"],
-    status: "Concept",
-    year: "2025",
-  },
-  {
-    slug: "drafty",
-    title: "Drafty",
-    badge: "AI",
-    url: "drafty.app",
-    summary: "AI writing companion untuk draft panjang, versioning, dan rewrite yang lebih terarah.",
-    description:
-      "Drafty membantu writer dan builder mengolah artikel, docs, dan research notes dengan suggestion AI yang explainable, editable, dan tetap terasa human.",
-    impact: ["Versioned draft timeline", "Flow rewrite dan critique berbasis LLM", "Eksperimen local-first AI"],
-    tech: ["React", "FastAPI", "pgvector", "Ollama"],
-    status: "Prototype",
-    year: "2025",
-  },
-  {
-    slug: "pondok-stack",
-    title: "Pondok Stack",
-    badge: "Open source",
-    url: "pondok-stack.app",
-    summary: "Fullstack starter opinionated untuk validasi SaaS lebih cepat: auth, dashboard, docs, dan deploy-ready defaults.",
-    description:
-      "Pondok Stack adalah starter kit yang fokus ke speed tanpa mengorbankan struktur — cocok untuk ngebangun MVP yang tetap kelihatan polished dari hari pertama.",
-    impact: ["Reusable auth dan billing shell", "Dashboard bento components", "Deployment recipes yang documented"],
-    tech: ["Next.js", "Drizzle", "Stripe", "Tailwind"],
-    status: "Maintained",
-    year: "2024",
   },
 ];
 
