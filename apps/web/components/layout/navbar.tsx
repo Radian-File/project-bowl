@@ -1,6 +1,7 @@
 "use client";
 
 import { portfolioButtonClasses } from "@/components/portfolio-ui";
+import { CommandPalette } from "@/components/command/command-palette";
 import Link from "next/link";
 import { LanguageToggle } from "@/components/i18n/language-toggle";
 import { useLanguage } from "@/components/i18n/language-provider";
@@ -14,6 +15,8 @@ export function Navbar() {
     { href: "/#stack", label: t.nav.stack },
     { href: "/#contact", label: t.nav.contact },
   ];
+
+  const openPalette = () => window.dispatchEvent(new Event("open-command-palette"));
 
   return (
     <>
@@ -30,6 +33,15 @@ export function Navbar() {
             ))}
           </div>
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={openPalette}
+              aria-label="Open command palette"
+              className="hidden items-center gap-2 rounded-md border border-ink-border px-2.5 py-1.5 font-mono text-xs text-ink-faint transition-colors hover:border-ink-borderStrong hover:text-ink-muted sm:flex"
+            >
+              <span>Search</span>
+              <kbd className="rounded border border-ink-border px-1 py-0.5 text-[10px]">⌘K</kbd>
+            </button>
             <LanguageToggle />
             <Link href="/#contact" className={portfolioButtonClasses({ variant: "secondary", size: "sm" })}>
               {t.nav.cta}
@@ -38,6 +50,7 @@ export function Navbar() {
         </nav>
       </header>
       <div className="h-16" aria-hidden="true" />
+      <CommandPalette />
     </>
   );
 }
